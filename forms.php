@@ -20,11 +20,11 @@
  * @copyright  2019  Martin Fica (mafica@alumnos.uai.cl)
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-    require_once ('forms/viewform.php');
-    require(__DIR__.'/../../config.php');
+    require_once (dirname(dirname(dirname(__FILE__)))."/config.php");
+    require_once ($CFG->libdir."/formslib.php");
 
 
-class cursos extends moodleform {
+class course extends moodleform {
 	
 	function definition(){
 		
@@ -79,7 +79,7 @@ class cursos extends moodleform {
 	}*/
 }
 
-class notas extends moodleform {
+class grades extends moodleform {
 	
 	function definition (){
 		
