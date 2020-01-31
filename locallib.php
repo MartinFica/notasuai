@@ -23,7 +23,7 @@
 /**
  * Function to export the Grades's Summary to excel
  *
- * @param array $head
+ * @param array $header
  *            Array containing the header of each row
  * @param varchar $filename
  *            Full name of the excel
@@ -36,7 +36,7 @@
  * @param array $tabs
  *            Array containing the tabs of the excel  DELETE, DONT NEED IT
  */
-function notasuai_exporttoexcel($head, $filename, $data, $descriptions, $dates, $tabs){
+function notasuai_exporttoexcel($header, $filename, $data, $descriptions, $dates, $tabs){
 	global $CFG;
 	$workbook = new MoodleExcelWorkbook("-");
 	$workbook->send($filename);
@@ -44,23 +44,23 @@ function notasuai_exporttoexcel($head, $filename, $data, $descriptions, $dates, 
 		$attxls = $workbook->add_worksheet($tab);
 		$i = 1;     //y axis
 		$j = 3;     //x axis
-		$headformat = $workbook->add_format();
-		$headformat->set_bold(1);
-		$headformat->set_size(10);
+		$headerformat = $workbook->add_format();
+		$headerformat->set_bold(1);
+		$headerformat->set_size(10);
 		foreach ($descriptions[$index] as $descr){
-			$attxls->write($i, $j, $descr, $headformat);
+			$attxls->write($i, $j, $descr, $headerformat);
 			$j++;
 		}
 		$i = 2;
 		$j = 3;
 		foreach ($dates[$index] as $date){
-			$attxls->write($i, $j, $date, $headformat);
+			$attxls->write($i, $j, $date, $headerformat);
 			$j++;
 		}
 		$i= 3;
 		$j = 0;
-		foreach($head[$index] as $cell){
-			$attxls->write($i, $j, $cell, $headformat);
+		foreach($header[$index] as $cell){
+			$attxls->write($i, $j, $cell, $headerformat);
 			$j++;
 		}
 		$i=4;

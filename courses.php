@@ -59,14 +59,9 @@
         $title = "Hi, im dustin";
         $header = array("Curso", "Prueba", "Apellido(s)","Nombre","Pregunta 1","Pregunta 2","Pregunta 3","Pregunta 4");
 
-        $data = array();
-        $descriptions = array();
-        $dates = array();
-        //Select all students from the last list
-        //$enrolincludes = explode("," ,$CFG->paperattendance_enrolmethod);
-        //list($enrolmethod, $paramenrol) = $DB->get_in_or_equal($enrolincludes);
-        //$parameters = array_merge(array($course->id), $paramenrol);
-
+        $data = array("hi","no","maybe");
+        $descriptions = array("yes","bye","hello");
+        $dates = array("nah","bruh","you");
 
         $testquery = "SELECT cc.fullname AS course,
                      e.name AS exam,
@@ -94,11 +89,9 @@
                      ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
         foreach($test as $id){
             $sql = $DB->get_records_sql($testquery, array($id));
-            //print_r($sql);
-            //echo "<br>";
         }
 
-        //notasuai_exporttoexcel($title, $header, $filename, $data, $descriptions, $dates, $tabs);
+        notasuai_exporttoexcel($title, $header, $filename, $data, $descriptions, $dates, $tabs);
     }
     echo $OUTPUT->header();
 
