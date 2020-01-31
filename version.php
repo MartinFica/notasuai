@@ -29,4 +29,4 @@
 defined('MOODLE_INTERNAL') || die();
 $plugin->pluginname = "local_notasuai";
 $plugin->component = 'local_notasuai';
-$plugin->version   = '2019100101';
+$plugin->version   = '2020010602';

@@ -33,8 +33,11 @@
     $PAGE->set_url($url);
     $PAGE->set_context($context);
     $PAGE->set_pagelayout("standard");
+    //$PAGE->requires->js('/mod/namemodule/socket.io.js',true);
 
-    // Possible actions -> view, add. Standard is view mode
+    // Possible views -> category, courses. Standard is category
+    //$view = optional_param("view", "category", PARAM_TEXT);
+    $category_id = optional_param("category_id", null, PARAM_INT);
     $action = optional_param("action", "view", PARAM_TEXT);
 
     require_login();
@@ -45,14 +48,56 @@
     $PAGE->set_title(get_string('title', 'local_notasuai'));
     $PAGE->set_heading(get_string('heading', 'local_notasuai'));
 
-    echo $OUTPUT->header();
+    $categoryform = new category();
 
-    $addform = new course();
-    $addform->display();
-
-    if ($getclasses = $addform->get_data()){
-        
+    if ($category_id > 0){
+        $courseform = new course(null, $category_id);
+        if ($courses = $courseform->get_data()){
+            $arcourses = (array)$courses;
+            $num = 0;
+            $arr = array();
+            foreach ($arcourses as $class){
+                if ($class != 0 && $num > 1){
+                    $arr[$num] = $class;
+                }
+                $num += 1;
+            }
+            $coursesstring = json_encode($arr);
+            redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
+        }
     }
 
+    echo $OUTPUT->header();
+
+    $categoryform->display();
+    if ($category_id > 0){
+        echo "<p style = \"font-family:georgia,garamond,serif;font-size:16px;font-style:italic;\">
+         If there's no emarking for the course, the course won't appear </p>";
+        $courseform->display();
+    }
+
+    /*$categoryform = new category();
+    $categoryform->display();
+
+    if ($category_id > 0){
+        $courseform = new course(null, $category_id);
+        $courseform->display();
+        if ($courses = $courseform->get_data()){
+            $arcourses = (array)$courses;
+            $num = 0;
+            $arr = array();
+            foreach ($arcourses as $class){
+                if ($class != 0 && $num > 1){
+                    $arr[$num] = $class;
+                }
+                $num += 1;
+            }
+
+            $coursesstring = json_encode($arr);
+            //redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
+            $courseurl = new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring));
+            $action = "redirect";
+        }
+    }*/
 
     echo $OUTPUT->footer();

@@ -22,124 +22,225 @@
  */
     require_once (dirname(dirname(dirname(__FILE__)))."/config.php");
     require_once ($CFG->libdir."/formslib.php");
+    require_once("$CFG->libdir/excellib.class.php");
+    require_once($CFG->dirroot . '/local/notasuai/locallib.php');
 
 
-class course extends moodleform {
-	
-	function definition(){
-		
-		global $DB, $CFG;
-		$mform = $this->_form;
+class category extends moodleform {
 
-		// Campus Input
-		$mform->addElement("select", "type", "Seleccione curso", array('--Select Campus--', 'Santiago', 'Viña', 'Ambos'));
+    function definition(){
 
-		// Class input
-        $this->add_checkbox_controller(1, "Todos", array('style' => 'font-weight: bold;'), 1);
-        $mform->addElement ('advcheckbox', "algebra", "Algebra", null, array('group' => 1));
-        $mform->addElement ('advcheckbox', 'algebrai', 'Algebra I', null, array('group' => 1));
-        $mform->addElement ('advcheckbox', 'algebraii', 'Algebra II', null, array('group' => 1));
-        $mform->addElement ('advcheckbox', 'algebral', 'Algebra Lineal', null, array('group' => 1));
-        $mform->addElement ('advcheckbox', 'calculodif', 'Calculo Diferencial', null, array('group' => 1));
-        $mform->addElement ('advcheckbox', 'calculoi', 'Calculo I', null, array('group' => 1));
-        $mform->addElement ('advcheckbox', 'calculoii', 'Calculo II', null, array('group' => 1));
-        $mform->addElement ('advcheckbox', 'calculoiii', 'Calculo III', null, array('group' => 1));
-        $mform->addElement ('advcheckbox', 'calculoint', 'Calculo Integral', null, array('group' => 1));
-        $mform->addElement ('advcheckbox', 'calculomul', 'Calculo Multivariado', null, array('group' => 1));
-        $mform->addElement ('advcheckbox', 'edo', 'Ecuaciones Diferenciales', null, array('group' => 1));
+        global $DB, $CFG;
+        $mform = $this->_form;
 
-		//$mform->setType ("class", PARAM_);
+        // get category
+        $query = "SELECT id, name 
+                    FROM {course_categories}";
 
-		// Set action to "add"
-		$mform->addElement ("hidden", "action", "add");
-		$mform->setType ("action", PARAM_TEXT);
+        // Get Records
+        $sql = $DB->get_records_sql($query, array(1));
 
-		$this->add_action_buttons(true);
-	}
-	
-/*	function validation ($data, $files){
-		
-		global $DB;
-		$errors = array();
-	
-		$course_id = $data["course_id"];
-		$name = $data["name"];
-	
-		if (isset($data["course_id"]) && !empty($data["course_id"]) && $data["course_id"] != "" && $data["course_id"] != null ){
-		}else{
-			$errors["course_id"] = "Campo requerido";
-		}
-	
-		if (isset($data["name"]) && !empty($data["name"]) && $data["name"] != "" && $data["name"] != null ){
-		}else{
-			$errors["name"] = "Campo requerido";
-		}
-	
-		return $errors;
-	}*/
+        foreach ($sql as $categories){
+            $name = $categories->name;
+            $cat[$categories->id] = $name;
+        };
+
+        // Category Input
+        $mform->addElement("select", "category_id",get_string('categ', 'local_notasuai'), $cat);
+
+        // Output button
+        $mform->addElement('submit','category_submit',get_string('button1', 'local_notasuai'));
+    }
+
 }
 
-class grades extends moodleform {
-	
-	function definition (){
-		
-		global $DB, $CFG;
-		$mform = $this->_form;
+class course extends moodleform
+{
 
-		$instance = $this->_customdata;
-		$idattendance = $instance["idapunte"];
+    function definition()
+    {
+        global $DB, $CFG;
+        $nform = $this->_form;
+        $category = $this->_customdata;
 
-		// Query for retrieving courses records
-		$sql = "SELECT id, fullname
-				FROM {course}
-				WHERE id>1";
+        $nform->addElement ("hidden", "category_id", $category);
+        $nform->setType ("category_id", PARAM_INT);
 
-		// Retrieves courses records
-		$courses = $DB->get_records_sql($sql, array(1));
-		
-		// Retrieves the previous information registered
-		$attendancedata = $DB->get_record("relacion", array("id" => $idattendance));
+        $class_sql = "SELECT id, fullname 
+                    FROM {course}
+                    WHERE category = ?";
+        // Get Records
+        $class_query = $DB->get_records_sql($class_sql, array($category));
+        $this->add_checkbox_controller(1, "All", array('style' => 'font-weight: bold;'), 1);
 
-		// Select user input
-		$status = array();
-		foreach($courses as $course){
-			$id = $course->id;
-			$name = $course->fullname;
-			$status[$course->id] = $name;
-		}
-		$mform->addElement("select", "course_id", "Seleccione curso", $status);
+        $emarking_sql ="SELECT *
+                    FROM {emarking}
+                    WHERE course = ?";
 
-		// Name input
-		$mform->addElement ("text", "name", "Ingrese nombre del apunte");
-		$mform->setType ("name", PARAM_TEXT);
+        foreach ($class_query as $class) {
+            $name = $class->fullname;
+            $course[$class->id] = $name;
+            $id = $class->id;
+            $emarking_query = $DB->get_records_sql($emarking_sql, array($id));
+            if (count($emarking_query)>0){
+                $nform->addElement('advcheckbox', $id, $name, null, array('group' => 1), $id);
+            }
+        }
 
-		// Set action to "edit"
-		$mform->addElement("hidden", "action", "edit");
-		$mform->setType("action", PARAM_TEXT);
-		$mform->addElement("hidden", "idapunte", $idattendance);
-		$mform->setType("idapunte", PARAM_INT);
+        $nform->addElement ("hidden", "action", "redirect");
+        $nform->setType ("action", PARAM_TEXT);
 
-		$this->add_action_buttons(true);
-	}
+        // Output button
+        $nform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
+    }
 
-    /*function validation ($data, $files){
-		
-		global $DB;
-		$errors = array();
-	
-		$course_id = $data["course_id"];
-		$name = $data["name"];
-	
-		if (isset($data["course_id"]) && !empty($data["course_id"]) && $data["course_id"] != "" && $data["course_id"] != null ){
-		}else{
-			$errors["course_id"] = "Campo requerido";
-		}
-	
-		if (isset($data["name"]) && !empty($data["name"]) && $data["name"] != "" && $data["name"] != null ){
-		}else{
-			$errors["name"] = "Campo requerido";
-		}
-	
-		return $errors;
-	}*/
+    /*	function validation ($data, $files){
+
+            global $DB;
+            $errors = array();
+
+            if (isset($data["course_id"]) && !empty($data["course_id"]) && $data["course_id"] != "" && $data["course_id"] != null ){
+            }else{
+                $errors["course_id"] =  get_string('error1', 'local_notasuai');
+            }
+            return $errors;
+        }*/
+}
+
+class tests extends moodleform {
+
+    function definition(){
+
+        global $DB, $CFG;
+
+        $mform = $this->_form;
+        $courses = $this->_customdata;
+
+        $coursesstring = json_encode($courses);
+        $mform->addElement ("hidden", "courses", $coursesstring);
+        $mform->setType ("courses", PARAM_TEXT);
+
+        $class_sql = "SELECT id, fullname, shortname 
+                FROM {course}
+                WHERE id = ?";
+        $test_sql = "SELECT id, name
+                FROM {emarking}
+                WHERE course = ?";
+        $num = 0;
+        $classesarray = array();
+        foreach($courses as $id){
+            // Get Records
+            $class_query = $DB->get_records_sql($class_sql, array($id));
+            $test_query = $DB->get_records_sql($test_sql, array($id));
+            foreach($class_query as $class){
+                $aux = array();
+                array_push($aux,$class->fullname,$class->id);
+                foreach($test_query as $test){
+                    array_push($aux,$test->id, $test->name);
+                }
+                $classesarray[$num] = $aux;
+                $num++;
+            }
+        }
+
+        $this->add_checkbox_controller('1', "Todas las pruebas 1", array('style' => 'font-weight: bold;'));
+        $this->add_checkbox_controller('2', "Todas las pruebas 2", array('style' => 'font-weight: bold;'));
+        $this->add_checkbox_controller('3', "Todas las pruebas 3", array('style' => 'font-weight: bold;'));
+        $this->add_checkbox_controller('4', "Todas las pruebas 4", array('style' => 'font-weight: bold;'));
+
+        foreach ($classesarray as $class){
+            $slice = array_slice($class,2);
+            if (count($slice) > 0){
+                $name = $class[0]; $id = $class[1];
+                $status = $class ? 1 : 0;
+                $testsarray = array();
+                $m=1;
+                $o=1;
+                for ($n = 0; $n < count($slice); $n += 2){
+                    $testsarray[] =& $mform->createElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
+                    $mform->setDefault($name, $status);
+                    $m++;
+                    if ($m > $o){
+                        $o=$m;
+                    }
+                }
+                $mform->addGroup($testsarray, "hi", $name, array(''), true);
+            }
+        }
+
+        // Output button
+        $this->add_action_buttons(false,"Descargar Excel");
+    }
+
+}
+
+class excel_export extends moodleform
+{
+
+    function definition()
+    {
+
+        global $DB, $CFG;
+
+        $test = $this->_customdata;
+
+        /*$types = array();
+        foreach ($formdata->sesstype as $sesstype=>$type){
+            $types[] = $sesstype;
+        }
+        list($selectedtypes, $paramsesstypes) = $DB->get_in_or_equal($types);*/
+        //$parametros = array_merge($paramsesstypes, array($courseid));
+        //excel parameters
+        $filename = "_attendances_".date('dmYHi');
+        $tabs = array("Attendances", "Summary");
+        $title = "Hi, im dustin";
+        $header = array(array("LastName", "FirstName", "Email"), array("LastName", "FirstName", "Email"));
+        $header[1] = array_merge($header[1], array("Total percentage"));
+        $data = array(array(), array());
+        $descriptions = array(array(), array());
+        $dates = array(array(), array());
+        //Select all students from the last list
+        $enrolincludes = explode("," ,$CFG->paperattendance_enrolmethod);
+        //list($enrolmethod, $paramenrol) = $DB->get_in_or_equal($enrolincludes);
+        //$parameters = array_merge(array($course->id), $paramenrol);
+
+        notasuai_exporttoexcel($title, $header, $filename, $data, $descriptions, $dates, $tabs);
+
+
+        // get tests
+        $testquery = "SELECT cc.fullname AS course,
+                     e.name AS exam,
+                     u.id,
+                     u.idnumber,
+                     u.lastname,
+                     u.firstname,
+                     cr.id criterionid,
+                     cr.description,
+                     l.id levelid,
+                     IFNULL(l.score, 0) AS score,
+                     IFNULL(c.bonus, 0) AS bonus,
+                     IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
+                     d.grade
+                     FROM mdl_emarking e
+                     INNER JOIN mdl_emarking_submission s ON (e.id = s.emarking)
+                     INNER JOIN mdl_emarking_draft d ON (d.submissionid = s.id AND d.qualitycontrol=0)
+                     INNER JOIN mdl_course cc ON (cc.id = e.course)
+                     INNER JOIN mdl_user u ON (s.student = u.id)
+                     INNER JOIN mdl_emarking_page p ON (p.submission = s.id)
+                     LEFT JOIN mdl_emarking_comment c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
+                     LEFT JOIN mdl_gradingform_rubric_levels l ON (c.levelid = l.id)
+                     LEFT JOIN mdl_gradingform_rubric_criteria cr ON (cr.id = l.criterionid)
+                     WHERE e.id = ?
+                     ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
+        foreach ($test as $testid){
+            $sql = $DB->get_records_sql($testquery, array($testid));
+        }
+
+
+
+
+
+
+
+    }
 }
