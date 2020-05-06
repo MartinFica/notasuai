@@ -51,48 +51,12 @@
     $testsform = new tests(null, $classes);
     if ($tests = $testsform->get_data()){
         $aux = (array)$tests;
-        $test = $aux["hi"];
 
-        // setting up excel
-        $filename = "Grades".date('dmYHi');
-        $tabs = array("Emarking");
-        $title = "Hi, im dustin";
-        $header = array("Curso", "Prueba", "Apellido(s)","Nombre","Pregunta 1","Pregunta 2","Pregunta 3","Pregunta 4");
-
-        $data = array("hi","no","maybe");
-        $descriptions = array("yes","bye","hello");
-        $dates = array("nah","bruh","you");
-
-        $testquery = "SELECT cc.fullname AS course,
-                     e.name AS exam,
-                     u.id,
-                     u.idnumber,
-                     u.lastname,
-                     u.firstname,
-                     cr.id criterionid,
-                     cr.description,
-                     l.id levelid,
-                     IFNULL(l.score, 0) AS score,
-                     IFNULL(c.bonus, 0) AS bonus,
-                     IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
-                     d.grade
-                     FROM mdl_emarking e
-                     INNER JOIN mdl_emarking_submission s ON (e.id = s.emarking)
-                     INNER JOIN mdl_emarking_draft d ON (d.submissionid = s.id AND d.qualitycontrol=0)
-                     INNER JOIN mdl_course cc ON (cc.id = e.course)
-                     INNER JOIN mdl_user u ON (s.student = u.id)
-                     INNER JOIN mdl_emarking_page p ON (p.submission = s.id)
-                     LEFT JOIN mdl_emarking_comment c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
-                     LEFT JOIN mdl_gradingform_rubric_levels l ON (c.levelid = l.id)
-                     LEFT JOIN mdl_gradingform_rubric_criteria cr ON (cr.id = l.criterionid)
-                     WHERE e.id = ?
-                     ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
-        foreach($test as $id){
-            $sql = $DB->get_records_sql($testquery, array($id));
-        }
-
-        notasuai_exporttoexcel($title, $header, $filename, $data, $descriptions, $dates, $tabs);
+        //gets Emarking's Id's
+        $idemarking = $aux["hi"];
+        export_excel($idemarking, $context);
     }
+
     echo $OUTPUT->header();
 
     $testsform->display();

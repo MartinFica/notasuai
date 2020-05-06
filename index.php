@@ -48,56 +48,51 @@
     $PAGE->set_title(get_string('title', 'local_notasuai'));
     $PAGE->set_heading(get_string('heading', 'local_notasuai'));
 
-    $categoryform = new category();
+    // Checking role of user
+    $rolequery = "SELECT roleid
+                    FROM {role_assignments}
+                    WHERE userid = ?";
 
-    if ($category_id > 0){
-        $courseform = new course(null, $category_id);
-        if ($courses = $courseform->get_data()){
-            $arcourses = (array)$courses;
-            $num = 0;
-            $arr = array();
-            foreach ($arcourses as $class){
-                if ($class != 0 && $num > 1){
-                    $arr[$num] = $class;
-                }
-                $num += 1;
-            }
-            $coursesstring = json_encode($arr);
-            redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
+    $roles = $DB->get_records_sql($rolequery, array($USER->id));
+
+    foreach($roles as $role){
+        if ($role->roleid <= 4){
+            $bool = 1;
         }
+    }
+
+    if ($bool == 1){
+        $categoryform = new category();
+
+        if ($category_id > 0){
+            $courseform = new course(null, $category_id);
+            if ($courses = $courseform->get_data()){
+                $arcourses = (array)$courses;
+                $num = 0;
+                $arr = array();
+                foreach ($arcourses as $class){
+                    if ($class != 0 && $num > 1){
+                        $arr[$num] = $class;
+                    }
+                    $num += 1;
+                }
+                $coursesstring = json_encode($arr);
+                redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
+            }
+        }
+    }
+    else {
+        echo "You don't have access to this site";
     }
 
     echo $OUTPUT->header();
 
     $categoryform->display();
+
     if ($category_id > 0){
         echo "<p style = \"font-family:georgia,garamond,serif;font-size:16px;font-style:italic;\">
          If there's no emarking for the course, the course won't appear </p>";
         $courseform->display();
     }
-
-    /*$categoryform = new category();
-    $categoryform->display();
-
-    if ($category_id > 0){
-        $courseform = new course(null, $category_id);
-        $courseform->display();
-        if ($courses = $courseform->get_data()){
-            $arcourses = (array)$courses;
-            $num = 0;
-            $arr = array();
-            foreach ($arcourses as $class){
-                if ($class != 0 && $num > 1){
-                    $arr[$num] = $class;
-                }
-                $num += 1;
-            }
-
-            $coursesstring = json_encode($arr);
-            //redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
-            $courseurl = new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring));
-            $action = "redirect";
-        }
-    }*/
 
     echo $OUTPUT->footer();

@@ -47,8 +47,8 @@ if (isguestuser()){
 $PAGE->set_title(get_string("title", 'local_notasuai'));
 $PAGE->set_heading(get_string("heading", 'local_notasuai'));
 
-echo $OUTPUT->header();
+redirect(new moodle_url("/local/notasuai/index.php"));
 
-//retornarVistaAviso($id_aviso, $back_url);
+echo $OUTPUT->header();
 
 echo $OUTPUT->footer();
