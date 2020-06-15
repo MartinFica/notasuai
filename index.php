@@ -49,7 +49,7 @@
     $PAGE->set_heading(get_string('heading', 'local_notasuai'));
 
     // Checking role of user
-    $rolequery = "SELECT roleid
+    /*$rolequery = "SELECT roleid
                     FROM {role_assignments}
                     WHERE userid = ?";
 
@@ -59,40 +59,41 @@
         if ($role->roleid <= 4){
             $bool = 1;
         }
-    }
+    }*/
 
-    if ($bool == 1){
-        $categoryform = new category();
+    $categoryform = new category();
 
-        if ($category_id > 0){
-            $courseform = new course(null, $category_id);
-            if ($courses = $courseform->get_data()){
-                $arcourses = (array)$courses;
-                $num = 0;
-                $arr = array();
-                foreach ($arcourses as $class){
-                    if ($class != 0 && $num > 1){
-                        $arr[$num] = $class;
-                    }
-                    $num += 1;
+    if ($category_id > 0){
+        $courseform = new course(null, $category_id);
+        if ($courses = $courseform->get_data()){
+            $arcourses = (array)$courses;
+            $num = 0;
+            $arr = array();
+            foreach ($arcourses as $class){
+                if ($class != 0 && $num > 1){
+                    $arr[$num] = $class;
                 }
-                $coursesstring = json_encode($arr);
-                redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
+                $num += 1;
             }
+            $coursesstring = json_encode($arr);
+            redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
         }
     }
-    else {
-        echo "You don't have access to this site";
-    }
 
-    echo $OUTPUT->header();
+echo $OUTPUT->header();
 
     $categoryform->display();
 
-    if ($category_id > 0){
-        echo "<p style = \"font-family:georgia,garamond,serif;font-size:16px;font-style:italic;\">
-         If there's no emarking for the course, the course won't appear </p>";
-        $courseform->display();
-    }
+	//if ($bool == 1){
+		if ($category_id > 0){
+			echo "<p style = \"font-family:georgia,garamond,serif;font-size:16px;font-style:italic;\">
+			If there's no emarking for the course, the course won't appear </p>";
+			$courseform->display();
+		}
+	//}
+	
+	/*else {
+        echo "You don't have access to this site";
+    }*/
 
-    echo $OUTPUT->footer();
+echo $OUTPUT->footer();

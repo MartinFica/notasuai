@@ -63,7 +63,7 @@ function  export_to_excel($emarking)
         }
 
         // get tests
-        $testquery = "SELECT cc.fullname AS course,
+	        $testquery = "SELECT cc.fullname AS course,
                      e.name AS exam,
                      u.id,
                      u.idnumber,
@@ -84,15 +84,27 @@ function  export_to_excel($emarking)
                      INNER JOIN mdl_emarking_page p ON (p.submission = s.id)
                      LEFT JOIN mdl_emarking_comment c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
                      LEFT JOIN mdl_gradingform_rubric_levels l ON (c.levelid = l.id)
-                     LEFT JOIN mdl_gradingform_rubric_criteria cr ON (cr.id = l.criterionid)
-                     WHERE e.id = 2 OR e.id = 1
-                     ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
-                    //WHERE '.$DB->sql_like('fullname', ':value', false); // false = not case sensitive.
+                     LEFT JOIN mdl_gradingform_rubric_criteria cr ON (cr.id = l.criterionid)";
+                     
+                     //ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
+                    //WHERE e.id = ?
+					
+		$n = 0;
+		foreach ($emarking as $id){
+			if ($id > 0){
+				if ($n == 0){
+					$testquery = $testquery . " WHERE e.id = " . $id;
+					$n += 1;
+				}
+				else{
+					$testquery = $testquery . " AND e.id = " . $id;
+				}
+			}
+		}
+		$testquery = $testquery . " ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
 
         // Get data and generate a list of questions.
-        $rows = $DB->get_records_sql($testquery,
-            array(2));
-        // HERE 'emarkingid' => $emarking->id
+        $rows = $DB->get_recordset_sql($testquery);
 
         // Make a list of all criteria
         $questions = array();
@@ -115,8 +127,7 @@ function  export_to_excel($emarking)
         $data = null;
 
         // Get dataset again
-        $rows = $DB->get_recordset_sql($testquery,
-            array(2));
+		$rows = $DB->get_recordset_sql($testquery);
         // HERE 'emarkingid' => $emarking->id
 
         // Now iterate through students
@@ -188,7 +199,7 @@ function  export_to_excel($emarking)
         emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 5);
     }
 
-function  export_excel($emarking, $context = null)
+function export_excel($emarking, $context = null)
 {
 
     global $DB, $CFG;
@@ -197,14 +208,14 @@ function  export_excel($emarking, $context = null)
 
     // Calculate levels indexes in forced formative feedback (no grades)
     $levelsindex = array();
-    foreach($definition->rubric_criteria as $crit) {
+    /*foreach($definition->rubric_criteria as $crit) {
         $total = count($crit['levels']);
         $current = 0;
         foreach($crit['levels'] as $lvl) {
             $current++;
             $levelsindex[$lvl['id']] = $total - $current + 1;
         }
-    }
+    }*/
 
     // get tests
     $testquery = "SELECT cc.fullname AS course,
@@ -238,8 +249,8 @@ function  export_excel($emarking, $context = null)
                 $n += 1;
             }
             else{
-                $testquery = $testquery . ' OR e.id = ' . $id;
-                $n += 1;
+                $testquery = $testquery . ' AND e.id = ' . $id;
+                
             }
         }
     }

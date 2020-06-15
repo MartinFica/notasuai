@@ -54,8 +54,7 @@ class category extends moodleform {
 
 }
 
-class course extends moodleform
-{
+class course extends moodleform{
 
     function definition()
     {
@@ -142,11 +141,25 @@ class tests extends moodleform {
                 $num++;
             }
         }
+		
+		$n_tests = 0;
+		foreach ($classesarray as $class){
+			$ct = (count($class)-2)/2;
+			if ($n_tests <= $ct){
+				$n_tests = $ct;
+			}
+		}
+		
+		$checkbox_controller = 1;
+		while ($checkbox_controller <= $n_tests){
+			$this->add_checkbox_controller($checkbox_controller, "Todas las pruebas ".$checkbox_controller, array('style' => 'font-weight: bold;'));
+			$checkbox_controller += 1;
+		}
 
-        $this->add_checkbox_controller('1', "Todas las pruebas 1", array('style' => 'font-weight: bold;'));
-        $this->add_checkbox_controller('2', "Todas las pruebas 2", array('style' => 'font-weight: bold;'));
-        $this->add_checkbox_controller('3', "Todas las pruebas 3", array('style' => 'font-weight: bold;'));
-        $this->add_checkbox_controller('4', "Todas las pruebas 4", array('style' => 'font-weight: bold;'));
+        //$this->add_checkbox_controller('1', "Todas las pruebas 1", array('style' => 'font-weight: bold;'));
+        //$this->add_checkbox_controller('2', "Todas las pruebas 2", array('style' => 'font-weight: bold;'));
+        //$this->add_checkbox_controller('3', "Todas las pruebas 3", array('style' => 'font-weight: bold;'));
+        //$this->add_checkbox_controller('4', "Todas las pruebas 4", array('style' => 'font-weight: bold;'));
 
         foreach ($classesarray as $class){
             $slice = array_slice($class,2);
@@ -174,8 +187,9 @@ class tests extends moodleform {
 
 }
 
-class excel_export extends moodleform
-{
+/*
+class excel_export extends moodleform{
+	
 
     function definition()
     {
@@ -194,9 +208,11 @@ class excel_export extends moodleform
                 $levelsindex[$lvl['id']] = $total - $current + 1;
             }
         }
+	
+		$emarking = $this->_customdata;
 
         // get tests
-        $testquery = "SELECT cc.fullname AS course,
+	        $testquery = "SELECT cc.fullname AS course,
                      e.name AS exam,
                      u.id,
                      u.idnumber,
@@ -217,14 +233,28 @@ class excel_export extends moodleform
                      INNER JOIN mdl_emarking_page p ON (p.submission = s.id)
                      LEFT JOIN mdl_emarking_comment c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
                      LEFT JOIN mdl_gradingform_rubric_levels l ON (c.levelid = l.id)
-                     LEFT JOIN mdl_gradingform_rubric_criteria cr ON (cr.id = l.criterionid)
+                     LEFT JOIN mdl_gradingform_rubric_criteria cr ON (cr.id = l.criterionid)";
                      
-                     ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
+                     //ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
                     //WHERE e.id = ?
+					
+		$n = 0;
+		foreach ($idemarking as $id){
+			if ($id > 0){
+				if ($n == 0){
+					$testquery = $testquery . " WHERE e.id = " . $id;
+					$n += 1;
+				}
+				else{
+					$testquery = $testquery . " AND e.id = " . $id;
+				}
+			}
+		}
+		$testquery = $testquery . " ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
 
         // Get data and generate a list of questions.
-        $rows = $DB->get_recordset_sql($csvsql, array(
-            'emarkingid' => $emarking->id));
+        $rows = $DB->get_recordset_sql($testquery);
+			
         // Make a list of all criteria
         $questions = array();
         foreach ($rows as $row) {
@@ -245,8 +275,7 @@ class excel_export extends moodleform
         $tabledata = array();
         $data = null;
         // Get dataset again
-        $rows = $DB->get_recordset_sql($csvsql, array(
-            'emarkingid' => $emarking->id));
+        $rows = $DB->get_recordset_sql($testquery);
         // Now iterate through students
         $studentname = '';
         $lastrow = null;
@@ -347,3 +376,4 @@ class excel_export extends moodleform
         $workbook->close();
     }
 }
+*/

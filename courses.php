@@ -54,11 +54,13 @@
 
         //gets Emarking's Id's
         $idemarking = $aux["hi"];
-        export_excel($idemarking, $context);
+
+		export_excel($idemarking, $context);
+	
     }
 
     echo $OUTPUT->header();
 
     $testsform->display();
-
+	
     echo $OUTPUT->footer();
