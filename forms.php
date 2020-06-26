@@ -57,15 +57,11 @@ class category extends moodleform {
 
         $queryparams = array($USER->id, "manager-report");*/
         // Get Records
-        $category_sql = $DB->get_records_sql($category_query, $queryparams);
+        $category_sql = $DB->get_records_sql($category_query, array());
 		
-		$class_query = "SELECT id, fullname 
-            FROM {course}
-            WHERE category = ?";
+		$class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
 			
-		$emarking_query ="SELECT *
-            FROM {emarking}
-            WHERE course = ?";
+		$emarking_query ="SELECT * FROM {emarking} WHERE course = ?";
 		
 
         foreach ($category_sql as $categories){
@@ -107,34 +103,27 @@ class course extends moodleform{
         $nform->setType ("category_id", PARAM_INT);
 		$contextsystem = context_system::instance();
 
-        if(is_siteadmin()){
+        //if(is_siteadmin()){
           // get courses
           $class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
-        }
-        elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
+        //}
+        /*elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
           //Query to get the categorys of the secretary
 			$class_query = "SELECT c.*
                 FROM {course} cc
                 INNER JOIN {role_assignments} ra ON (ra.userid = ?)
                 INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
-                INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";
+                INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";*/
 
         // Get Records
         $class_sql = $DB->get_records_sql($class_query, array($category));
         $this->add_checkbox_controller(1, "All", array('style' => 'font-weight: bold;'), 1);
 
-        $emarking_sql ="SELECT *
-                    FROM {emarking}
-                    WHERE course = ?";
-
-        foreach ($class_query as $class) {
+        foreach ($class_sql as $class) {
             $name = $class->fullname;
             $course[$class->id] = $name;
             $id = $class->id;
-            $emarking_query = $DB->get_records_sql($emarking_sql, array($id));
-            if (count($emarking_query)>0){
-                $nform->addElement('advcheckbox', $id, $name, null, array('group' => 1), $id);
-            }
+            $nform->addElement('advcheckbox', $id, $name, null, array('group' => 1), $id);
         }
 
         $nform->addElement ("hidden", "action", "redirect");
@@ -156,7 +145,6 @@ class course extends moodleform{
             return $errors;
         }*/
 	}
-}
 
 class tests extends moodleform {
 
