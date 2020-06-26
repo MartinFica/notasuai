@@ -30,4 +30,4 @@
 $plugin->pluginname = "local_notasuai";
 $plugin->component = 'local_notasuai';
 $plugin->version   = 2020010602;
-$plugin->requires = 2020010602;
+$plugin->requires = 2015111600;

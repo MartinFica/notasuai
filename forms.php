@@ -32,18 +32,58 @@ class category extends moodleform {
 
         global $DB, $CFG;
         $mform = $this->_form;
+		$contextsystem = context_system::instance();
 
         // get category
-        $query = "SELECT id, name 
+        /*$query = "SELECT id, name 
                     FROM {course_categories}";
 
         // Get Records
-        $sql = $DB->get_records_sql($query, array(1));
+        $sql = $DB->get_records_sql($query, array(1));*/
+		
+		//var_dump("user id ".$USER->id);
 
-        foreach ($sql as $categories){
-            $name = $categories->name;
-            $cat[$categories->id] = $name;
-        };
+        //if(is_siteadmin()){
+          // get category
+          $category_query = "SELECT id, name FROM {course_categories}";
+        //}
+        /*elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
+          //Query to get the categorys of the secretary
+        $category_query = "SELECT cc.*
+                        FROM {course_categories} cc
+                        INNER JOIN {role_assignments} ra ON (ra.userid = ?)
+                        INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
+                        INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";
+
+        $queryparams = array($USER->id, "manager-report");*/
+        // Get Records
+        $category_sql = $DB->get_records_sql($category_query, $queryparams);
+		
+		$class_query = "SELECT id, fullname 
+            FROM {course}
+            WHERE category = ?";
+			
+		$emarking_query ="SELECT *
+            FROM {emarking}
+            WHERE course = ?";
+		
+
+        foreach ($category_sql as $categories){
+			$class_sql = $DB->get_records_sql($class_query, array($categories->id));
+			if (count($class_sql)>0){
+				$n = 0;
+				foreach($class_sql as $course){
+					$emarking_sql = $DB->get_records_sql($emarking_query, array($course->id));
+					if (count($emarking_sql)>0){
+						$n += 1;
+					}
+				}
+				if($n > 0){
+					$name = $categories->name;
+					$cat[$categories->id] = $name;
+				}
+			}
+        }
 
         // Category Input
         $mform->addElement("select", "category_id",get_string('categ', 'local_notasuai'), $cat);
@@ -51,7 +91,8 @@ class category extends moodleform {
         // Output button
         $mform->addElement('submit','category_submit',get_string('button1', 'local_notasuai'));
     }
-
+	
+	//}
 }
 
 class course extends moodleform{
@@ -64,12 +105,22 @@ class course extends moodleform{
 
         $nform->addElement ("hidden", "category_id", $category);
         $nform->setType ("category_id", PARAM_INT);
+		$contextsystem = context_system::instance();
 
-        $class_sql = "SELECT id, fullname 
-                    FROM {course}
-                    WHERE category = ?";
+        if(is_siteadmin()){
+          // get courses
+          $class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
+        }
+        elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
+          //Query to get the categorys of the secretary
+			$class_query = "SELECT c.*
+                FROM {course} cc
+                INNER JOIN {role_assignments} ra ON (ra.userid = ?)
+                INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
+                INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";
+
         // Get Records
-        $class_query = $DB->get_records_sql($class_sql, array($category));
+        $class_sql = $DB->get_records_sql($class_query, array($category));
         $this->add_checkbox_controller(1, "All", array('style' => 'font-weight: bold;'), 1);
 
         $emarking_sql ="SELECT *
@@ -104,6 +155,7 @@ class course extends moodleform{
             }
             return $errors;
         }*/
+	}
 }
 
 class tests extends moodleform {
@@ -155,6 +207,7 @@ class tests extends moodleform {
 			$this->add_checkbox_controller($checkbox_controller, "Todas las pruebas ".$checkbox_controller, array('style' => 'font-weight: bold;'));
 			$checkbox_controller += 1;
 		}
+
 
         //$this->add_checkbox_controller('1', "Todas las pruebas 1", array('style' => 'font-weight: bold;'));
         //$this->add_checkbox_controller('2', "Todas las pruebas 2", array('style' => 'font-weight: bold;'));
