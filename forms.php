@@ -276,25 +276,26 @@ class tests extends moodleform {
                 $m=1;
                 $o=1;
 				
-				$submited = 0;
-				$submited_sql = $DB->get_records_sql($submited_query, array($id));
-				foreach($submited_sql as $status1){
-					foreach($status1 as $status2){
-						if ($status2 >= 20){
-							$submited++;
-						}
-					}
-				}
-
                 $mform->addElement('html', '<td>'.$name.'</td>');
 
                 for ($n = 0; $n < count($slice); $n += 2){
                     
-					if ($submited>0){
-						$mform->addElement('html', '<td>');
-						$mform->addElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
-						$mform->addElement('html', '</td>');
+					$submited = 0;
+					$submited_sql = $DB->get_records_sql($submited_query, array($slice[$n]));
+					foreach($submited_sql as $status1){
+						foreach($status1 as $status2){
+							if ($status2 >= 20){
+								$submited++;
+							}
+						}
 					}
+					
+					$mform->addElement('html', '<td>');
+					if ($submited>0){
+						$mform->addElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
+					}
+					$mform->addElement('html', '</td>');
+
 
                     //$testsarray[] =& $mform->createElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
                     $mform->setDefault($name, $status);
