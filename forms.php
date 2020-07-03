@@ -159,7 +159,7 @@ class course extends moodleform{
         $mform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
     }
 
-    /*	function validation ($data, $files){
+    /*function validation ($data, $files){
 
             global $DB;
             $errors = array();
@@ -169,8 +169,8 @@ class course extends moodleform{
                 $errors["course_id"] =  get_string('error1', 'local_notasuai');
             }
             return $errors;
-        }*/
-	}
+    }*/
+}
 
 class tests extends moodleform {
 
@@ -293,6 +293,9 @@ class tests extends moodleform {
 					$mform->addElement('html', '<td>');
 					if ($submited>0){
 						$mform->addElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
+					}
+					else{
+						$mform->addElement('html',$slice[$n+1]);
 					}
 					$mform->addElement('html', '</td>');
 
