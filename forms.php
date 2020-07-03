@@ -33,16 +33,9 @@ class category extends moodleform {
         global $DB, $CFG;
         $mform = $this->_form;
 		$contextsystem = context_system::instance();
-
-        // get category
-        /*$query = "SELECT id, name 
-                    FROM {course_categories}";
-
-        // Get Records
-        $sql = $DB->get_records_sql($query, array(1));*/
 		
-		//var_dump("user id ".$USER->id);
-
+		$mform->addElement('header', 'nameforyourheaderelement', get_string('category', 'local_notasuai'));
+		
         //if(is_siteadmin()){
           // get category
           $category_query = "SELECT id, name FROM {course_categories}";
@@ -96,11 +89,11 @@ class course extends moodleform{
     function definition()
     {
         global $DB, $CFG;
-        $nform = $this->_form;
+        $mform = $this->_form;
         $category = $this->_customdata;
 
-        $nform->addElement ("hidden", "category_id", $category);
-        $nform->setType ("category_id", PARAM_INT);
+        $mform->addElement ("hidden", "category_id", $category);
+        $mform->setType ("category_id", PARAM_INT);
 		$contextsystem = context_system::instance();
 
         //if(is_siteadmin()){
@@ -116,21 +109,54 @@ class course extends moodleform{
                 INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";*/
 
         // Get Records
+        //create de list of courses with checkboxs
+        $mform->addElement('header', 'nameforyourheaderelement', get_string('course', 'local_notasuai'));
         $class_sql = $DB->get_records_sql($class_query, array($category));
-        $this->add_checkbox_controller(1, "All", array('style' => 'font-weight: bold;'), 1);
+        $this->add_checkbox_controller(1);
 
+        $th_title = get_string("course", "local_notasuai");
+        $mform->addElement('html', '<table class="table table-striped table-condensed table-hover">');
+        $mform->addElement('html', '<thead>');
+        $mform->addElement('html', '<tr>');
+        $mform->addElement('html', '<th>#');
+        $mform->addElement('html', '</th>');
+        $mform->addElement('html', '<th>'.$th_title);
+        $mform->addElement('html', '</th>');
+        $mform->addElement('html', '</tr>');
+        $mform->addElement('html', '</thead>');
+        $mform->addElement('html', '<tbody>');
+
+		$emarking_query ="SELECT * FROM {emarking} WHERE course = ?";
+        $counter = 1;
         foreach ($class_sql as $class) {
             $name = $class->fullname;
             $course[$class->id] = $name;
             $id = $class->id;
-            $nform->addElement('advcheckbox', $id, $name, null, array('group' => 1), $id);
+			
+			$emarking_sql = $DB->get_records_sql($emarking_query, array($id));
+						
+			if (count($emarking_sql)>0){
+			    $mform->addElement('html', '<tr>');
+				$mform->addElement('html', '<td>'.$counter.'</td>');
+				$mform->addElement('html', '<td>');
+
+				$mform->addElement('advcheckbox', $id, $name, null, array('group' => 1), $id);
+
+				$mform->addElement('html', '</td>');
+				$mform->addElement('html', '</tr>');
+				$counter++;
+			}
         }
 
-        $nform->addElement ("hidden", "action", "redirect");
-        $nform->setType ("action", PARAM_TEXT);
+
+        $mform->addElement('html', '</tbody>');
+        $mform->addElement('html', '</table>');
+
+        $mform->addElement ("hidden", "action", "redirect");
+        $mform->setType ("action", PARAM_TEXT);
 
         // Output button
-        $nform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
+        $mform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
     }
 
     /*	function validation ($data, $files){
@@ -159,6 +185,16 @@ class tests extends moodleform {
         $mform->addElement ("hidden", "courses", $coursesstring);
         $mform->setType ("courses", PARAM_TEXT);
 
+        $mform->addElement('header', 'nameforyourheaderelement', get_string('tests', 'local_notasuai'));
+        $th_title = get_string("course", "local_notasuai");
+        $mform->addElement('html', '<table class="table table-striped table-condensed table-hover">');
+        $mform->addElement('html', '<thead>');
+        $mform->addElement('html', '<tr>');
+        $mform->addElement('html', '<th>#');
+        $mform->addElement('html', '</th>');
+        $mform->addElement('html', '<th>'.$th_title);
+        $mform->addElement('html', '</th>');
+
         $class_sql = "SELECT id, fullname, shortname 
                 FROM {course}
                 WHERE id = ?";
@@ -181,49 +217,107 @@ class tests extends moodleform {
                 $num++;
             }
         }
-		
+
+
 		$n_tests = 0;
 		foreach ($classesarray as $class){
 			$ct = (count($class)-2)/2;
 			if ($n_tests <= $ct){
 				$n_tests = $ct;
 			}
+
 		}
-		
+
+        /*NUM TEST HEAD TABLE*/
+
+		/*for($i = 1; $i <= $n_tests; $i++){
+
+            $mform->addElement('html', '<th>Emarking '.$i);
+            //$mform->add_checkbox_controller($test->id, "Yo ".$test->id, array('style' => 'font-weight: bold;'));
+            $mform->addElement('html', '</th>');
+        }
+
+        $mform->addElement('html', '</tr>');
+        $mform->addElement('html', '</thead>');*/
+
+
 		$checkbox_controller = 1;
 		while ($checkbox_controller <= $n_tests){
-			$this->add_checkbox_controller($checkbox_controller, "Todas las pruebas ".$checkbox_controller, array('style' => 'font-weight: bold;'));
+            $mform->addElement('html', '<th>');
+			$this->add_checkbox_controller($checkbox_controller, "Emarking ".$checkbox_controller, array('style' => 'font-weight: bold;'));
+            $mform->addElement('html', '</th>');
 			$checkbox_controller += 1;
 		}
 
+        $mform->addElement('html', '</tr>');
+        $mform->addElement('html', '</thead>');
 
-        //$this->add_checkbox_controller('1', "Todas las pruebas 1", array('style' => 'font-weight: bold;'));
-        //$this->add_checkbox_controller('2', "Todas las pruebas 2", array('style' => 'font-weight: bold;'));
-        //$this->add_checkbox_controller('3', "Todas las pruebas 3", array('style' => 'font-weight: bold;'));
-        //$this->add_checkbox_controller('4', "Todas las pruebas 4", array('style' => 'font-weight: bold;'));
+        /*TABLE HEAD END*/
+        /*BODY*/
+        $mform->addElement('html', '<tbody>');
 
+		$submited_query = "SELECT status
+                FROM {emarking_submission}
+                WHERE emarking = ?";
+				
+        $n_courses = 1;
         foreach ($classesarray as $class){
+
+            $mform->addElement('html', '<tr>');
+            $mform->addElement('html', '<td>'.$n_courses.'</td>');
+
+
             $slice = array_slice($class,2);
             if (count($slice) > 0){
-                $name = $class[0]; $id = $class[1];
+                $name = $class[0];
+                $id = $class[1];
                 $status = $class ? 1 : 0;
                 $testsarray = array();
                 $m=1;
                 $o=1;
+				
+				$submited = 0;
+				$submited_sql = $DB->get_records_sql($submited_query, array($id));
+				foreach($submited_sql as $status1){
+					foreach($status1 as $status2){
+						if ($status2 >= 20){
+							$submited++;
+						}
+					}
+				}
+
+                $mform->addElement('html', '<td>'.$name.'</td>');
+
                 for ($n = 0; $n < count($slice); $n += 2){
-                    $testsarray[] =& $mform->createElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
+                    
+					if ($submited>0){
+						$mform->addElement('html', '<td>');
+						$mform->addElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
+						$mform->addElement('html', '</td>');
+					}
+
+                    //$testsarray[] =& $mform->createElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
                     $mform->setDefault($name, $status);
                     $m++;
                     if ($m > $o){
                         $o=$m;
                     }
                 }
-                $mform->addGroup($testsarray, "hi", $name, array(''), true);
+                //$mform->addGroup($testsarray, "hi", $name, array(''), true);
             }
+
+
+
+
+            $mform->addElement('html', '</tr>');
+            $n_courses++;
         }
 
+        $mform->addElement('html', '</tbody>');
+        $mform->addElement('html', '</table>');
+
         // Output button
-        $this->add_action_buttons(false,"Descargar Excel");
+        $this->add_action_buttons(false,get_string('download', 'local_notasuai'));
     }
 
 }
