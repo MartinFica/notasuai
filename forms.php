@@ -159,17 +159,21 @@ class course extends moodleform{
         $mform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
     }
 
-    /*function validation ($data, $files){
+    function validation ($data, $files){
 
             global $DB;
             $errors = array();
 
-            if (isset($data["course_id"]) && !empty($data["course_id"]) && $data["course_id"] != "" && $data["course_id"] != null ){
+            /*if (isset($data["course_id"]) && !empty($data["course_id"]) && $data["course_id"] != "" && $data["course_id"] != null ){
             }else{
                 $errors["course_id"] =  get_string('error1', 'local_notasuai');
-            }
+            }*/
+			
+			if (!empty($data['id']) && isset($data["course_id"]) && $data["course_id"] != "" && $data["course_id"] != null) {
+				$errors["id"] =  get_string('error1', 'local_notasuai');
+			}
             return $errors;
-    }*/
+    }
 }
 
 class tests extends moodleform {
@@ -295,7 +299,7 @@ class tests extends moodleform {
 						$mform->addElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
 					}
 					else{
-						$mform->addElement('html',$slice[$n+1]);
+						$mform->addElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m,'disabled'),$slice[$n]);
 					}
 					$mform->addElement('html', '</td>');
 
