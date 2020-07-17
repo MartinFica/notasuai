@@ -52,15 +52,40 @@
     if ($tests = $testsform->get_data()){
         $aux = (array)$tests;
 
+		print_r($tests);
+		echo "<br>";
         //gets Emarking's Id's
-        $idemarking = $aux["hi"];
+        //$idemarking = $aux["hi"];
 
-		export_excel($idemarking, $context);
-	
+		export_to_excel($idemarking, $context);
+		
     }
 
     echo $OUTPUT->header();
 
     $testsform->display();
 	
+	print_r($aux);
+
     echo $OUTPUT->footer();
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	

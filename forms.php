@@ -159,20 +159,29 @@ class course extends moodleform{
         $mform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
     }
 
-    function validation ($data, $files){
+	function validation($data,$files) {
 
-            global $DB;
-            $errors = array();
-
-            /*if (isset($data["course_id"]) && !empty($data["course_id"]) && $data["course_id"] != "" && $data["course_id"] != null ){
-            }else{
-                $errors["course_id"] =  get_string('error1', 'local_notasuai');
-            }*/
-			
-			if (!empty($data['id']) && isset($data["course_id"]) && $data["course_id"] != "" && $data["course_id"] != null) {
-				$errors["id"] =  get_string('error1', 'local_notasuai');
+        $errors = array();
+		
+		$confirmed = 0;
+		$N = count($data);
+		$n = 0;
+				
+		foreach($data as $dt){
+			if (($n > 1) && ($n < $N-4)){
+				if ($dt > 0){
+					$confirmed++;
+				}
 			}
-            return $errors;
+			$n++;
+		}
+
+        if ($confirmed != 0){
+		}else{
+            $errors["course"] = get_string('error1', 'local_notasuai');
+        }
+
+        return $errors;
     }
 }
 
@@ -283,7 +292,7 @@ class tests extends moodleform {
                 $mform->addElement('html', '<td>'.$name.'</td>');
 
                 for ($n = 0; $n < count($slice); $n += 2){
-                    
+					
 					$submited = 0;
 					$submited_sql = $DB->get_records_sql($submited_query, array($slice[$n]));
 					foreach($submited_sql as $status1){
@@ -303,19 +312,14 @@ class tests extends moodleform {
 					}
 					$mform->addElement('html', '</td>');
 
-
-                    //$testsarray[] =& $mform->createElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
-                    $mform->setDefault($name, $status);
+                    //$mform->setDefault($name, $status);					
+					
                     $m++;
                     if ($m > $o){
                         $o=$m;
                     }
                 }
-                //$mform->addGroup($testsarray, "hi", $name, array(''), true);
             }
-
-
-
 
             $mform->addElement('html', '</tr>');
             $n_courses++;
@@ -323,200 +327,41 @@ class tests extends moodleform {
 
         $mform->addElement('html', '</tbody>');
         $mform->addElement('html', '</table>');
+		
+		$mform->addElement('advcheckbox', '5 test', 'test', null, array('group' => '1'),'1');
 
         // Output button
-        $this->add_action_buttons(false,get_string('download', 'local_notasuai'));
+        $this->add_action_buttons(true,get_string('download', 'local_notasuai'));
     }
-
-}
-
-/*
-class excel_export extends moodleform{
 	
+	function validation($data,$files) {
 
-    function definition()
-    {
-
-        global $DB, $CFG;
-        // Validate that we have a rubric associated
-        list($gradingmanager, $gradingmethod, $definition, $rubriccontroller) =
-            emarking_validate_rubric($context, false, false);
-        // Calculate levels indexes in forced formative feedback (no grades)
-        $levelsindex = array();
-        foreach($definition->rubric_criteria as $crit) {
-            $total = count($crit['levels']);
-            $current = 0;
-            foreach($crit['levels'] as $lvl) {
-                $current++;
-                $levelsindex[$lvl['id']] = $total - $current + 1;
-            }
-        }
-	
-		$emarking = $this->_customdata;
-
-        // get tests
-	        $testquery = "SELECT cc.fullname AS course,
-                     e.name AS exam,
-                     u.id,
-                     u.idnumber,
-                     u.lastname,
-                     u.firstname,
-                     cr.id criterionid,
-                     cr.description,
-                     l.id levelid,
-                     IFNULL(l.score, 0) AS score,
-                     IFNULL(c.bonus, 0) AS bonus,
-                     IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
-                     d.grade
-                     FROM mdl_emarking e
-                     INNER JOIN mdl_emarking_submission s ON (e.id = s.emarking)
-                     INNER JOIN mdl_emarking_draft d ON (d.submissionid = s.id AND d.qualitycontrol=0)
-                     INNER JOIN mdl_course cc ON (cc.id = e.course)
-                     INNER JOIN mdl_user u ON (s.student = u.id)
-                     INNER JOIN mdl_emarking_page p ON (p.submission = s.id)
-                     LEFT JOIN mdl_emarking_comment c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
-                     LEFT JOIN mdl_gradingform_rubric_levels l ON (c.levelid = l.id)
-                     LEFT JOIN mdl_gradingform_rubric_criteria cr ON (cr.id = l.criterionid)";
-                     
-                     //ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
-                    //WHERE e.id = ?
-					
+        $errors = array();
+		
+		$confirmed = 0;
+		$N = count($data);
 		$n = 0;
-		foreach ($idemarking as $id){
-			if ($id > 0){
-				if ($n == 0){
-					$testquery = $testquery . " WHERE e.id = " . $id;
-					$n += 1;
-				}
-				else{
-					$testquery = $testquery . " AND e.id = " . $id;
+		
+		print_r($data);
+				
+		foreach($data as $dt){
+			if (($n > 1) && ($n < $N-2)){
+				if ($dt > 0){
+					$confirmed++;
 				}
 			}
+			$n++;
 		}
-		$testquery = $testquery . " ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
+		
+		echo "<br>";
+		print_r($confirmed);
 
-        // Get data and generate a list of questions.
-        $rows = $DB->get_recordset_sql($testquery);
-			
-        // Make a list of all criteria
-        $questions = array();
-        foreach ($rows as $row) {
-            if (array_search($row->description, $questions) === false && $row->description) {
-                $questions [] = $row->description;
-            }
+        if ($confirmed != 0){
+		}else{
+            $errors["course"] = get_string('error2', 'local_notasuai');
         }
-        // Starting the loop
-        $current = 0;
-        $laststudent = 0;
-        // Basic headers that go everytime
-        $headers = array(
-            '00course' => get_string('course'),
-            '01exam' => get_string('exam', 'mod_emarking'),
-            '02idnumber' => get_string('idnumber'),
-            '03lastname' => get_string('lastname'),
-            '04firstname' => get_string('firstname'));
-        $tabledata = array();
-        $data = null;
-        // Get dataset again
-        $rows = $DB->get_recordset_sql($testquery);
-        // Now iterate through students
-        $studentname = '';
-        $lastrow = null;
-        foreach ($rows as $row) {
-            // The index allows to sort final grade at the end (99grade)
-            $index = 10 + array_search($row->description, $questions);
-            $keyquestion = $index . "" . $row->description;
-            // If the index is not there yet we create it
-            if (! isset($headers [$keyquestion]) && $row->description) {
-                $headers [$keyquestion] = $row->description;
-            }
-            // If we changed student
-            if ($laststudent != $row->id) {
-                if ($laststudent > 0) {
-                    $tabledata [$studentname] = $data;
-                    $current ++;
-                }
-                $data = array(
-                    '00course' => $row->course,
-                    '01exam' => $row->exam,
-                    '02idnumber' => $row->idnumber,
-                    '03lastname' => $row->lastname,
-                    '04firstname' => $row->firstname);
-                // If it's not formative feedback, add the grade as a final column
-                if(!isset($CFG->emarking_formativefeedbackonly) || !$CFG->emarking_formativefeedbackonly) {
-                    $data['99grade'] = $row->grade;
-                }
-                $laststudent = intval($row->id);
-                $studentname = $row->lastname . ',' . $row->firstname;
-            }
-            // Store the score (including bonus) or level index in criterion
-            if ($row->description) {
-                if(isset($CFG->emarking_formativefeedbackonly) && $CFG->emarking_formativefeedbackonly) {
-                    $data [$keyquestion] = $levelsindex[$row->levelid];
-                } else {
-                    $data [$keyquestion] = $row->totalscore;
-                }
-            }
-            $lastrow = $row;
-        }
-        // Add the last row
-        $studentname = $lastrow->lastname . ',' . $lastrow->firstname;
-        $tabledata [$studentname] = $data;
-        // Add the grade if it's summative feedback
-        if(!isset($CFG->emarking_formativefeedbackonly) || !$CFG->emarking_formativefeedbackonly) {
-            $headers ['99grade'] = get_string('grade');
-        }
-        ksort($tabledata);
-        // Now pivot the table to form the Excel report
-        $current = 0;
-        $newtabledata = array();
-        foreach ($tabledata as $data) {
-            foreach ($questions as $q) {
-                $index = 10 + array_search($q, $questions);
-                if (! isset($data [$index . "" . $q])) {
-                    $data [$index . "" . $q] = '0.000';
-                }
-            }
-            ksort($data);
-            $current ++;
-            $newtabledata [] = $data;
-        }
-        $tabledata = $newtabledata;
-        // The file name of the report
-        $excelfilename = clean_filename($emarking->name . "-grades.xls");
-        // Save the data to Excel
-        emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 5);
+
+        return $errors;
     }
 
-    function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $colnumber = 5) {
-        // Creating a workbook.
-        $workbook = new MoodleExcelWorkbook("-");
-        // Sending HTTP headers.
-        $workbook->send($excelfilename);
-        // Adding the worksheet.
-        $myxls = $workbook->add_worksheet(get_string('emarking', 'mod_emarking'));
-        // Writing the headers in the first row.
-        $row = 0;
-        $col = 0;
-        foreach (array_values($headers) as $d) {
-            $myxls->write_string($row, $col, $d);
-            $col ++;
-        }
-        // Writing the data.
-        $row = 1;
-        foreach ($tabledata as $data) {
-            $col = 0;
-            foreach (array_values($data) as $d) {
-                if ($row > 0 && $col >= $colnumber) {
-                    $myxls->write_number($row, $col, $d);
-                } else {
-                    $myxls->write_string($row, $col, $d);
-                }
-                $col ++;
-            }
-            $row ++;
-        }
-        $workbook->close();
-    }
 }
-*/
