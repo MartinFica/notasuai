@@ -28,3 +28,4 @@ $string['test2'] = 'Prueba 2';
 $string['test3'] = 'Prueba 3';
 $string['test4'] = 'Prueba 4';
 $string['download'] = 'Descargar Excel';
+$string['error2'] = 'Elija al menos 1 prueba';

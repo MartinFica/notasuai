@@ -58,14 +58,17 @@
         //$idemarking = $aux["hi"];
 
 		export_to_excel($idemarking, $context);
-		
     }
+	else{
+		$error=1;
+	}
 
     echo $OUTPUT->header();
 
-    $testsform->display();
-	
-	print_r($aux);
+	$testsform->display();
+	if ($error == 0){
+		echo get_string('error2', 'local_notasuai');
+	}
 
     echo $OUTPUT->footer();
 	

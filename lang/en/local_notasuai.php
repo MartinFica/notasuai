@@ -28,3 +28,4 @@ $string['test2'] = 'Test 2';
 $string['test3'] = 'Test 3';
 $string['test4'] = 'Test 4';
 $string['download'] = 'Download Excel';
+$string['error2'] = 'Choose at least 1 test';

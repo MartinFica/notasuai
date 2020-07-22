@@ -78,6 +78,9 @@
             $coursesstring = json_encode($arr);
             redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
         }
+		else{
+			$error = 0;
+		}
     }
 
 echo $OUTPUT->header();
@@ -85,7 +88,10 @@ echo $OUTPUT->header();
     $categoryform->display();
 
 	if ($category_id > 0){
-		$courseform->display();
+		if ($error == 0){
+			echo get_string('error1', 'local_notasuai');
 		}
+		$courseform->display();
+	}
 
 echo $OUTPUT->footer();
