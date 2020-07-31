@@ -49,16 +49,21 @@
     $arcourses = json_decode($courses);
     $classes = (array) $arcourses;
     $testsform = new tests(null, $classes);
-    if ($tests = $testsform->get_data()){
-        $aux = (array)$tests;
 
-		print_r($tests);
-		echo "<br>";
-        //gets Emarking's Id's
-        //$idemarking = $aux["hi"];
+	$error=0;
+	if ($formdata = $testsform->get_data()) {
 
-		export_to_excel($idemarking, $context);
-    }
+        //form data analysis
+        $exams = array();
+        foreach ($formdata->emarking_checkbox as $valor) { 
+
+            if($valor != 0 || $valor != ''){
+                $exams[] = $valor;
+            }
+        }
+        export_to_excel($exams, $context);
+	} 
+
 	else{
 		$error=1;
 	}
@@ -66,7 +71,7 @@
     echo $OUTPUT->header();
 
 	$testsform->display();
-	if ($error == 0){
+	if ($error == 1){
 		echo get_string('error2', 'local_notasuai');
 	}
 

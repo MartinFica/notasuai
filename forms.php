@@ -88,7 +88,7 @@ class course extends moodleform{
 
     function definition()
     {
-        global $DB, $CFG;
+        global $DB, $CFG, $OUTPUT;
         $mform = $this->_form;
         $category = $this->_customdata;
 
@@ -160,7 +160,8 @@ class course extends moodleform{
     }
 
 	function validation($data,$files) {
-
+		
+		global $DB, $CFG, $OUTPUT;
         $errors = array();
 		
 		$confirmed = 0;
@@ -181,7 +182,8 @@ class course extends moodleform{
             $errors["course"] = get_string('error1', 'local_notasuai');
         }
 
-        return $errors;
+		return $errors;
+		
     }
 }
 
@@ -274,7 +276,8 @@ class tests extends moodleform {
                 WHERE emarking = ?";
 				
         $n_courses = 1;
-        foreach ($classesarray as $class){
+		$checkboxcount = 0; 
+	    foreach ($classesarray as $class){
 
             $mform->addElement('html', '<tr>');
             $mform->addElement('html', '<td>'.$n_courses.'</td>');
@@ -288,6 +291,8 @@ class tests extends moodleform {
                 $testsarray = array();
                 $m=1;
                 $o=1;
+				
+				
 				
                 $mform->addElement('html', '<td>'.$name.'</td>');
 
@@ -304,16 +309,17 @@ class tests extends moodleform {
 					}
 					
 					$mform->addElement('html', '<td>');
+					$name_checkbox ="emarking_checkbox[".$checkboxcount."]"; 
 					if ($submited>0){
-						$mform->addElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m),$slice[$n]);
+						$mform->addElement('advcheckbox', $name_checkbox, $slice[$n+1], null, array('group' => $m),$slice[$n]);
 					}
 					else{
-						$mform->addElement('advcheckbox', $m . " " .$slice[$n+1], $slice[$n+1], null, array('group' => $m,'disabled'),$slice[$n]);
+						$mform->addElement('advcheckbox', $name_checkbox, $slice[$n+1], null, array('group' => $m,'disabled'),$slice[$n]);
 					}
+					
+					$checkboxcount++;
 					$mform->addElement('html', '</td>');
 
-                    //$mform->setDefault($name, $status);					
-					
                     $m++;
                     if ($m > $o){
                         $o=$m;
@@ -328,10 +334,10 @@ class tests extends moodleform {
         $mform->addElement('html', '</tbody>');
         $mform->addElement('html', '</table>');
 		
-		$mform->addElement('advcheckbox', '5 test', 'test', null, array('group' => '1'),'1');
+		//$mform->addElement('advcheckbox', '5 test', 'test', null, array('group' => '1'),'1');
 
         // Output button
-        $this->add_action_buttons(true,get_string('download', 'local_notasuai'));
+        $this->add_action_buttons(false,get_string('download', 'local_notasuai'));
     }
 	
 	function validation($data,$files) {
@@ -339,23 +345,13 @@ class tests extends moodleform {
         $errors = array();
 		
 		$confirmed = 0;
-		$N = count($data);
-		$n = 0;
-		
-		print_r($data);
-				
-		foreach($data as $dt){
-			if (($n > 1) && ($n < $N-2)){
-				if ($dt > 0){
-					$confirmed++;
-				}
+						
+		foreach($data['emarking_checkbox'] as $dt){
+			if ($dt > 0){
+				$confirmed++;
 			}
-			$n++;
 		}
 		
-		echo "<br>";
-		print_r($confirmed);
-
         if ($confirmed != 0){
 		}else{
             $errors["course"] = get_string('error2', 'local_notasuai');
