@@ -106,14 +106,14 @@ function  export_to_excel($emarking, $context = null){
             emarking_validate_rubric($context, false, false);
         // Calculate levels indexes in forced formative feedback (no grades)
         $levelsindex = array();
-        /*foreach($definition->rubric_criteria as $crit) {
+        foreach($definition->rubric_criteria as $crit) {
             $total = count($crit['levels']);
             $current = 0;
             foreach($crit['levels'] as $lvl) {
                 $current++;
                 $levelsindex[$lvl['id']] = $total - $current + 1;
             }
-        }*/
+        }
 		
         $criteria = 0;
 		$questions = array();
@@ -461,5 +461,6 @@ function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $coln
         }
         $row ++;
     }
+	print_r($tabledata);
     $workbook->close();
 }
