@@ -106,14 +106,14 @@ function  export_to_excel($emarking, $context = null){
             emarking_validate_rubric($context, false, false);
         // Calculate levels indexes in forced formative feedback (no grades)
         $levelsindex = array();
-        foreach($definition->rubric_criteria as $crit) {
+        /*foreach($definition->rubric_criteria as $crit) {
             $total = count($crit['levels']);
             $current = 0;
             foreach($crit['levels'] as $lvl) {
                 $current++;
                 $levelsindex[$lvl['id']] = $total - $current + 1;
             }
-        }
+        }*/
 		
         $criteria = 0;
 		$questions = array();
@@ -129,7 +129,9 @@ function  export_to_excel($emarking, $context = null){
             '03lastname' => get_string('lastname'),
             '04firstname' => get_string('firstname'));
         $tabledata = array();
-        $data = null;
+        $data = array();
+		$part = 0;
+		$crit = array();
 		
 		//Loop to determine questions and headers
 		foreach ($emarking as $id){
@@ -161,7 +163,7 @@ function  export_to_excel($emarking, $context = null){
 			// Get data and generate a list of questions.
 			$rows2 = $DB->get_recordset_sql($testquery, array(
 				'emarkingid' => $id));
-							
+											
 			// Make a list of all criteria
 			foreach ($rows2 as $row) {
 				if (array_search($row->description, $questions) === false && $row->description) {
@@ -175,19 +177,46 @@ function  export_to_excel($emarking, $context = null){
 				}
 			
 			// The index allows to sort final grade at the end (99grade)	
-			$index = 10 + array_search($row->description, $questions);
-			$keyquestion = $index . "" . $row->description;
-			// If the index is not there yet we create it
-			if (! isset($headers [$keyquestion]) && $row->description) {
+			/*$index = 10 + $part;
+			$keyquestion = $index . "" . $questions[$part];
+
+
+			
+			$crit[$part] = $keyquestion;*/
+			
+
+			
+			// If the index is not there yet we create it  && $row->description
+			/*if (! isset($headers [$keyquestion])) {
 				$headers [$keyquestion] = $row->description;
+			}*/
+			$part++;
+		}
+		
+		$aux = 0;
+		$part = 0;
+		foreach($questions as $q){
+			$index = 10 + $part;
+			$keyquestion = $index . "" . $questions[$part];			
+			$crit[$part] = $keyquestion;
+			
+			$headers[$keyquestion] = $q;
+			
+			foreach($crit as $keyquestion){
+				if (!isset($headers[$keyquestion]) && $aux == array_search($keyquestion,$crit) ){
+					$headers[$keyquestion] = $q;
+				}
 			}
+			$aux++;
+			$part++;
 		}
 		
 		//Loop to get the data
 		$test = 1;
 		$studentname = '';
-		$current_line = 0;
+		$current_line = -1;
 		$lastrow = null;
+		
 		foreach ($emarking as $id){
 			// get tests
 			$testquery = "SELECT cc.fullname AS course,
@@ -217,31 +246,51 @@ function  export_to_excel($emarking, $context = null){
 			// Get data.
 			$rows2 = $DB->get_recordset_sql($testquery, array(
 				'emarkingid' => $id));
-			
+
 			// Now iterate through students
 			foreach ($rows2 as $row) {
-				
+								
 				if($row->description){
-					
-					$data = array(
+					// compares the current row with the last one, if they match, it just assings the grade for the current criteria
+					if(array_search($row->course,$data) && array_search($row->exam,$data) && array_search($row->idnumber,$data) && array_search($row->lastname,$data) && array_search($row->firstname,$data) ){
+						$part1 = 0;
+						while($part1 < $part){
+							$index = 10 + $part1;
+							$P = $index . "" . $row->description;
+							
+							if(array_search($P,$crit)){
+								$data [$P] = $row->totalscore;
+							}
+							$part1++;
+						}
+					}
+					// if they don't match, it means we are with a new student, and it creates a new line for that student
+					else{
+						$current_line++;
+						
+						$data = array(
 						'00course' => $row->course,
 						'01exam' => $row->exam,
 						'02idnumber' => $row->idnumber,
 						'03lastname' => $row->lastname,
 						'04firstname' => $row->firstname);
-					$data['99grade'] = $row->grade;
-					
-					$index = 10 + array_search($row->description, $questions);
-					$keyquestion = $index . "" . $row->description;		
-					
-					if(isset($CFG->emarking_formativefeedbackonly) && $CFG->emarking_formativefeedbackonly) {
-						$data [$keyquestion] = $levelsindex[$row->levelid];
-					} else {
-						$data [$keyquestion] = $row->totalscore;						
+						$data['99grade'] = $row->grade;
+						
+						$part1 = 0;
+						while($part1 < $part){
+							$index = 10 + $part1;
+							$P = $index . "" . $row->description;
+						
+							if(array_search($P,$crit)){
+								$data [$P] = $row->totalscore;
+							}
+							$part1++;
+						}
 					}
+					
 					$tabledata [$current_line] = $data;
-					$current_line++;
 				}
+
 			}
 			// Add the grade if it's summative feedback
 			if(!isset($CFG->emarking_formativefeedbackonly) || !$CFG->emarking_formativefeedbackonly) {
@@ -461,6 +510,5 @@ function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $coln
         }
         $row ++;
     }
-	print_r($tabledata);
     $workbook->close();
 }
