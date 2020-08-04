@@ -280,8 +280,11 @@ function  export_to_excel($emarking, $context = null){
 						while($part1 < $part){
 							$index = 10 + $part1;
 							$P = $index . "" . $row->description;
-						
+
 							if(array_search($P,$crit)){
+								$data [$P] = $row->totalscore;
+							}
+							elseif($P == $crit[0]){
 								$data [$P] = $row->totalscore;
 							}
 							$part1++;
@@ -319,7 +322,7 @@ function  export_to_excel($emarking, $context = null){
 		// The file name of the report
         $excelfilename = clean_filename("ReporteUAI" . "-grades.xls");
         // Save the data to Excel
-        emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 6);
+        emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 5);
 }
 
 function export_excel($emarking, $context = null){
@@ -482,7 +485,7 @@ function export_excel($emarking, $context = null){
         //emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 5);
     }
 
-function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $colnumber = 6) {
+function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $colnumber = 5) {
     // Creating a workbook.
     $workbook = new MoodleExcelWorkbook("-");
     // Sending HTTP headers.
