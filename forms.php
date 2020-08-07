@@ -154,7 +154,7 @@ class course extends moodleform{
 
         $mform->addElement ("hidden", "action", "redirect");
         $mform->setType ("action", PARAM_TEXT);
-
+		
         // Output button
         $mform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
     }
@@ -167,7 +167,7 @@ class course extends moodleform{
 		$confirmed = 0;
 		$N = count($data);
 		$n = 0;
-				
+
 		foreach($data as $dt){
 			if (($n > 1) && ($n < $N-4)){
 				if ($dt > 0){
@@ -179,7 +179,7 @@ class course extends moodleform{
 
         if ($confirmed != 0){
 		}else{
-            $errors["course"] = get_string('error1', 'local_notasuai');
+            $errors["class_submit"] = get_string('error1', 'local_notasuai');
         }
 
 		return $errors;
@@ -333,11 +333,9 @@ class tests extends moodleform {
 
         $mform->addElement('html', '</tbody>');
         $mform->addElement('html', '</table>');
-		
-		//$mform->addElement('advcheckbox', '5 test', 'test', null, array('group' => '1'),'1');
 
         // Output button
-        $this->add_action_buttons(false,get_string('download', 'local_notasuai'));
+        $this->add_action_buttons(true,get_string('download', 'local_notasuai'));
     }
 	
 	function validation($data,$files) {
@@ -354,7 +352,7 @@ class tests extends moodleform {
 		
         if ($confirmed != 0){
 		}else{
-            $errors["course"] = get_string('error2', 'local_notasuai');
+            $errors['buttonar'] = get_string('error2', 'local_notasuai');
         }
 
         return $errors;

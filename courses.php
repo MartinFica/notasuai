@@ -51,8 +51,11 @@
     $testsform = new tests(null, $classes);
 
 	$error=0;
-	if ($formdata = $testsform->get_data()) {
-
+	if ($testsform->is_cancelled()) {
+		redirect(new moodle_url("/local/notasuai/index.php"));
+	}
+	else if($formdata = $testsform->get_data()) {
+		
         //form data analysis
         $exams = array();
         foreach ($formdata->emarking_checkbox as $valor) { 
@@ -62,18 +65,11 @@
             }
         }
         export_to_excel($exams, $context);
-	} 
-
-	else{
-		$error=1;
 	}
 
     echo $OUTPUT->header();
 
 	$testsform->display();
-	if ($error == 1){
-		echo get_string('error2', 'local_notasuai');
-	}
 
     echo $OUTPUT->footer();
 	

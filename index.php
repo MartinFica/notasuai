@@ -64,6 +64,7 @@
     $categoryform = new category();
 
     if ($category_id > 0){
+		$error = 0;
         $courseform = new course(null, $category_id);
         if ($courses = $courseform->get_data()){
             $arcourses = (array)$courses;
@@ -78,19 +79,12 @@
             $coursesstring = json_encode($arr);
             redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
         }
-		else{
-			$error = 0;
-		}
     }
 
 echo $OUTPUT->header();
 
     $categoryform->display();
-
 	if ($category_id > 0){
-		if ($error == 0){
-			echo get_string('error1', 'local_notasuai');
-		}
 		$courseform->display();
 	}
 
