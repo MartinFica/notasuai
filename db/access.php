@@ -47,6 +47,10 @@ $capabilities = array(
                     'student' => CAP_ALLOW,
                     'teacher' => CAP_ALLOW,
                     'editingteacher' => CAP_ALLOW,
-                    'manager' => CAP_ALLOW
+                    'manager' => CAP_ALLOW,
+					'coursecreator' => CAP_PROHIBIT,
+					'guest' => CAP_PROHIBIT,
+					'user' => CAP_PROHIBIT,
+					'frontpage' => CAP_PROHIBIT
             ))
 );

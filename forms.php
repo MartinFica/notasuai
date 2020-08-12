@@ -34,54 +34,60 @@ class category extends moodleform {
         $mform = $this->_form;
 		$contextsystem = context_system::instance();
 		
+		print_r($contextsystem);
+		
 		$mform->addElement('header', 'nameforyourheaderelement', get_string('category', 'local_notasuai'));
 		
-        //if(is_siteadmin()){
+        if(is_siteadmin()){
           // get category
           $category_query = "SELECT id, name FROM {course_categories}";
-        //}
-        /*elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
+		  $category_sql = $DB->get_records_sql($category_query, array());
+        }
+        elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
           //Query to get the categorys of the secretary
-        $category_query = "SELECT cc.*
-                        FROM {course_categories} cc
-                        INNER JOIN {role_assignments} ra ON (ra.userid = ?)
-                        INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
-                        INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";
+			$category_query = "SELECT cc.*
+                FROM {course_categories} cc
+                INNER JOIN {role_assignments} ra ON (ra.userid = ?)
+                INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
+                INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";
 
-        $queryparams = array($USER->id, "manager-report");*/
-        // Get Records
-        $category_sql = $DB->get_records_sql($category_query, array());
-		
-		$class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
+			$queryparams = array($USER->id, "manager-report");
+			// Get Records
+			$category_sql = $DB->get_records_sql($category_query, $queryparams);
 			
-		$emarking_query ="SELECT * FROM {emarking} WHERE course = ?";
+			print_r($category_sql);
+		}
+		
+			$class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
+			
+			$emarking_query ="SELECT * FROM {emarking} WHERE course = ?";
 		
 
-        foreach ($category_sql as $categories){
-			$class_sql = $DB->get_records_sql($class_query, array($categories->id));
-			if (count($class_sql)>0){
-				$n = 0;
-				foreach($class_sql as $course){
-					$emarking_sql = $DB->get_records_sql($emarking_query, array($course->id));
-					if (count($emarking_sql)>0){
-						$n += 1;
+			foreach ($category_sql as $categories){
+				$class_sql = $DB->get_records_sql($class_query, array($categories->id));
+				if (count($class_sql)>0){
+					$n = 0;
+					foreach($class_sql as $course){
+						$emarking_sql = $DB->get_records_sql($emarking_query, array($course->id));
+						if (count($emarking_sql)>0){
+							$n += 1;
+						}
+					}
+					if($n > 0){
+						$name = $categories->name;
+						$cat[$categories->id] = $name;
 					}
 				}
-				if($n > 0){
-					$name = $categories->name;
-					$cat[$categories->id] = $name;
-				}
 			}
-        }
 
         // Category Input
         $mform->addElement("select", "category_id",get_string('categ', 'local_notasuai'), $cat);
 
         // Output button
         $mform->addElement('submit','category_submit',get_string('button1', 'local_notasuai'));
-    }
+    
 	
-	//}
+	}
 }
 
 class course extends moodleform{
@@ -96,17 +102,22 @@ class course extends moodleform{
         $mform->setType ("category_id", PARAM_INT);
 		$contextsystem = context_system::instance();
 
-        //if(is_siteadmin()){
+        if(is_siteadmin()){
           // get courses
           $class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
-        //}
-        /*elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
+		  $class_sql = $DB->get_records_sql($class_query, array($category));
+        }
+        elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
           //Query to get the categorys of the secretary
 			$class_query = "SELECT c.*
                 FROM {course} cc
                 INNER JOIN {role_assignments} ra ON (ra.userid = ?)
                 INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
-                INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";*/
+                INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";
+			
+			$queryparams = array($USER->id, "manager-report");
+			$class_sql = $DB->get_records_sql($class_query, $queryparams);
+		}
 
         // Get Records
         //create de list of courses with checkboxs
@@ -210,7 +221,16 @@ class tests extends moodleform {
         $mform->addElement('html', '<th>'.$th_title);
         $mform->addElement('html', '</th>');
 
-        $class_sql = "SELECT id, fullname, shortname 
+        if(is_siteadmin()){
+			$class_sql = "SELECT id, fullname, shortname 
+                FROM {course}
+                WHERE id = ?";
+		    $test_sql = "SELECT id, name
+                FROM {emarking}
+                WHERE course = ?";
+        }
+		
+		$class_sql = "SELECT id, fullname, shortname 
                 FROM {course}
                 WHERE id = ?";
         $test_sql = "SELECT id, name

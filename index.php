@@ -33,10 +33,7 @@
     $PAGE->set_url($url);
     $PAGE->set_context($context);
     $PAGE->set_pagelayout("standard");
-    //$PAGE->requires->js('/mod/namemodule/socket.io.js',true);
 
-    // Possible views -> category, courses. Standard is category
-    //$view = optional_param("view", "category", PARAM_TEXT);
     $category_id = optional_param("category_id", null, PARAM_INT);
     $action = optional_param("action", "view", PARAM_TEXT);
 
@@ -47,19 +44,6 @@
 
     $PAGE->set_title(get_string('title', 'local_notasuai'));
     $PAGE->set_heading(get_string('heading', 'local_notasuai'));
-
-    // Checking role of user
-    /*$rolequery = "SELECT roleid
-                    FROM {role_assignments}
-                    WHERE userid = ?";
-
-    $roles = $DB->get_records_sql($rolequery, array($USER->id));
-
-    foreach($roles as $role){
-        if ($role->roleid <= 4){
-            $bool = 1;
-        }
-    }*/
 
     $categoryform = new category();
 
@@ -83,7 +67,7 @@
 
 echo $OUTPUT->header();
 
-    $categoryform->display();
+    $categoryform->display();	
 	if ($category_id > 0){
 		$courseform->display();
 	}
