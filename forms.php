@@ -30,11 +30,9 @@ class category extends moodleform {
 
     function definition(){
 
-        global $DB, $CFG;
+        global $DB, $CFG, $USER;
         $mform = $this->_form;
 		$contextsystem = context_system::instance();
-		
-		print_r($contextsystem);
 		
 		$mform->addElement('header', 'nameforyourheaderelement', get_string('category', 'local_notasuai'));
 		
@@ -43,7 +41,7 @@ class category extends moodleform {
           $category_query = "SELECT id, name FROM {course_categories}";
 		  $category_sql = $DB->get_records_sql($category_query, array());
         }
-        elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
+        //elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
           //Query to get the categorys of the secretary
 			$category_query = "SELECT cc.*
                 FROM {course_categories} cc
@@ -51,17 +49,14 @@ class category extends moodleform {
                 INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
                 INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";
 
-			$queryparams = array($USER->id, "manager-report");
+			$queryparams = array($USER->id, "managerreport");
 			// Get Records
 			$category_sql = $DB->get_records_sql($category_query, $queryparams);
-			
-			print_r($category_sql);
-		}
+		//}
 		
-			$class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
+		$class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
 			
-			$emarking_query ="SELECT * FROM {emarking} WHERE course = ?";
-		
+		$emarking_query ="SELECT * FROM {emarking} WHERE course = ?";
 
 			foreach ($category_sql as $categories){
 				$class_sql = $DB->get_records_sql($class_query, array($categories->id));
@@ -94,7 +89,7 @@ class course extends moodleform{
 
     function definition()
     {
-        global $DB, $CFG, $OUTPUT;
+        global $DB, $CFG, $OUTPUT, $USER;
         $mform = $this->_form;
         $category = $this->_customdata;
 
@@ -107,22 +102,21 @@ class course extends moodleform{
           $class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
 		  $class_sql = $DB->get_records_sql($class_query, array($category));
         }
-        elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
+        //elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
           //Query to get the categorys of the secretary
 			$class_query = "SELECT c.*
-                FROM {course} cc
+                FROM {course} c
                 INNER JOIN {role_assignments} ra ON (ra.userid = ?)
                 INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
-                INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";
+                INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = c.id  )";
 			
-			$queryparams = array($USER->id, "manager-report");
+			$queryparams = array($USER->id, "managerreport");
 			$class_sql = $DB->get_records_sql($class_query, $queryparams);
-		}
+		//}
 
         // Get Records
         //create de list of courses with checkboxs
         $mform->addElement('header', 'nameforyourheaderelement', get_string('course', 'local_notasuai'));
-        $class_sql = $DB->get_records_sql($class_query, array($category));
         $this->add_checkbox_controller(1);
 
         $th_title = get_string("course", "local_notasuai");
@@ -202,10 +196,11 @@ class tests extends moodleform {
 
     function definition(){
 
-        global $DB, $CFG;
+        global $DB, $CFG, $USER;
 
         $mform = $this->_form;
         $courses = $this->_customdata;
+		$contextsystem = context_system::instance();
 
         $coursesstring = json_encode($courses);
         $mform->addElement ("hidden", "courses", $coursesstring);
@@ -222,30 +217,49 @@ class tests extends moodleform {
         $mform->addElement('html', '</th>');
 
         if(is_siteadmin()){
-			$class_sql = "SELECT id, fullname, shortname 
+			$class_query = "SELECT id, fullname, shortname 
                 FROM {course}
                 WHERE id = ?";
-		    $test_sql = "SELECT id, name
+		    $test_query = "SELECT id, name
                 FROM {emarking}
                 WHERE course = ?";
         }
 		
-		$class_sql = "SELECT id, fullname, shortname 
-                FROM {course}
-                WHERE id = ?";
-        $test_sql = "SELECT id, name
-                FROM {emarking}
-                WHERE course = ?";
-        $num = 0;
+		$class_query = "SELECT c.id, c.fullname, c.shortname
+            FROM {course} c
+            INNER JOIN {role_assignments} ra ON (ra.userid = ?)
+            INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
+            INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = ?  )";
+        
+		$test_query = "SELECT e.id, e.name
+            FROM {emarking} e
+            INNER JOIN {role_assignments} ra ON (ra.userid = ?)
+            INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
+            INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = ? )";
+		
+		echo "<br><br>";
+		print_r($courses);
+		
+		$num = 0;
         $classesarray = array();
         foreach($courses as $id){
-            // Get Records
-            $class_query = $DB->get_records_sql($class_sql, array($id));
-            $test_query = $DB->get_records_sql($test_sql, array($id));
-            foreach($class_query as $class){
+            
+			$queryparams = array($USER->id, "managerreport", $id);
+			
+			// Get Records
+            $class_sql = $DB->get_records_sql($class_query, $queryparams);
+            $test_sql = $DB->get_records_sql($test_query, $queryparams);
+			
+			echo "<br><br>";
+			echo "Resultado Class";
+			echo "<br><br>";
+			print_r($class_sql);
+			echo "<br><br>";
+			
+            foreach($class_sql as $class){
                 $aux = array();
                 array_push($aux,$class->fullname,$class->id);
-                foreach($test_query as $test){
+                foreach($test_sql as $test){
                     array_push($aux,$test->id, $test->name);
                 }
                 $classesarray[$num] = $aux;
@@ -264,17 +278,6 @@ class tests extends moodleform {
 		}
 
         /*NUM TEST HEAD TABLE*/
-
-		/*for($i = 1; $i <= $n_tests; $i++){
-
-            $mform->addElement('html', '<th>Emarking '.$i);
-            //$mform->add_checkbox_controller($test->id, "Yo ".$test->id, array('style' => 'font-weight: bold;'));
-            $mform->addElement('html', '</th>');
-        }
-
-        $mform->addElement('html', '</tr>');
-        $mform->addElement('html', '</thead>');*/
-
 
 		$checkbox_controller = 1;
 		while ($checkbox_controller <= $n_tests){
@@ -295,8 +298,13 @@ class tests extends moodleform {
                 FROM {emarking_submission}
                 WHERE emarking = ?";
 				
+		echo "<br>";
+		print_r($classesarray);
+		echo "<br>";
+		echo "<br>";
+				
         $n_courses = 1;
-		$checkboxcount = 0; 
+		$checkboxcount = 0;
 	    foreach ($classesarray as $class){
 
             $mform->addElement('html', '<tr>');

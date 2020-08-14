@@ -44,13 +44,14 @@ $capabilities = array(
             'captype' => 'read',
             'contextlevel' => CONTEXT_COURSECAT,
             'archetypes' => array(
-                    'student' => CAP_ALLOW,
-                    'teacher' => CAP_ALLOW,
-                    'editingteacher' => CAP_ALLOW,
-                    'manager' => CAP_ALLOW,
+                    'student' => CAP_PROHIBIT,
+                    'teacher' => CAP_PROHIBIT,
+                    'editingteacher' => CAP_PROHIBIT,
+                    'manager' => CAP_PROHIBIT,
 					'coursecreator' => CAP_PROHIBIT,
 					'guest' => CAP_PROHIBIT,
 					'user' => CAP_PROHIBIT,
-					'frontpage' => CAP_PROHIBIT
+					'frontpage' => CAP_PROHIBIT,
+					'managerreport'=>CAP_PROHIBIT
             ))
 );
