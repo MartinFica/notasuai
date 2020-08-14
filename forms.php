@@ -97,11 +97,12 @@ class course extends moodleform{
         $mform->setType ("category_id", PARAM_INT);
 		$contextsystem = context_system::instance();
 
-        if(is_siteadmin()){
+        /*if(is_siteadmin()){
           // get courses
           $class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
 		  $class_sql = $DB->get_records_sql($class_query, array($category));
-        }
+        }*/
+		
         //elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
           //Query to get the categorys of the secretary
 			$class_query = "SELECT c.*
@@ -134,23 +135,29 @@ class course extends moodleform{
 		$emarking_query ="SELECT * FROM {emarking} WHERE course = ?";
         $counter = 1;
         foreach ($class_sql as $class) {
-            $name = $class->fullname;
-            $course[$class->id] = $name;
-            $id = $class->id;
+
+				if($class->category == $category){
+				
+					$name = $class->fullname;
+					$course[$class->id] = $name;
+					$id = $class->id;
 			
-			$emarking_sql = $DB->get_records_sql($emarking_query, array($id));
+					$emarking_sql = $DB->get_records_sql($emarking_query, array($id));
 						
-			if (count($emarking_sql)>0){
-			    $mform->addElement('html', '<tr>');
-				$mform->addElement('html', '<td>'.$counter.'</td>');
-				$mform->addElement('html', '<td>');
+					if (count($emarking_sql)>0){
+						$mform->addElement('html', '<tr>');
+						$mform->addElement('html', '<td>'.$counter.'</td>');
+						$mform->addElement('html', '<td>');
+	
+						$mform->addElement('advcheckbox', $id, $name, null, array('group' => 1), $id);
 
-				$mform->addElement('advcheckbox', $id, $name, null, array('group' => 1), $id);
-
-				$mform->addElement('html', '</td>');
-				$mform->addElement('html', '</tr>');
-				$counter++;
-			}
+						$mform->addElement('html', '</td>');
+						$mform->addElement('html', '</tr>');
+						$counter++;
+					}
+				
+				}
+			
         }
 
 
@@ -231,7 +238,7 @@ class tests extends moodleform {
             INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
             INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = ?  )";
         
-		$test_query = "SELECT e.id, e.name
+		$test_query = "SELECT e.id, e.name, e.course
             FROM {emarking} e
             INNER JOIN {role_assignments} ra ON (ra.userid = ?)
             INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
@@ -250,20 +257,22 @@ class tests extends moodleform {
             $class_sql = $DB->get_records_sql($class_query, $queryparams);
             $test_sql = $DB->get_records_sql($test_query, $queryparams);
 			
-			echo "<br><br>";
-			echo "Resultado Class";
-			echo "<br><br>";
-			print_r($class_sql);
-			echo "<br><br>";
-			
             foreach($class_sql as $class){
-                $aux = array();
-                array_push($aux,$class->fullname,$class->id);
-                foreach($test_sql as $test){
-                    array_push($aux,$test->id, $test->name);
-                }
-                $classesarray[$num] = $aux;
-                $num++;
+				
+				if ($class->id == $id){
+					$aux = array();
+					array_push($aux,$class->fullname,$class->id);
+					foreach($test_sql as $test){
+						if ($test->course == $id){
+							array_push($aux,$test->id, $test->name);
+						}
+
+					}
+					$classesarray[$num] = $aux;
+					$num++;
+				}
+				
+
             }
         }
 
