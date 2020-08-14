@@ -44,6 +44,25 @@
  * @param unknown $context
  */
 
+function is_manager() {
+	global $DB, $CFG, $USER;
+	
+	$category_query = "SELECT cc.*
+                FROM {course_categories} cc
+                INNER JOIN {role_assignments} ra ON (ra.userid = ?)
+                INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
+                INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = cc.id  )";
+
+	$queryparams = array($USER->id, "managerreport");
+	// Get Records
+	$category_sql = $DB->get_records_sql($category_query, $queryparams);
+	
+	if (count($category_sql) == 0){
+		return false;
+	}
+	return true;
+}
+
 function emarking_validate_rubric(context $context, $die, $showrubricbuttons) {
     global $OUTPUT, $CFG, $COURSE, $USER;
     require_once ($CFG->dirroot . '/grade/grading/lib.php');

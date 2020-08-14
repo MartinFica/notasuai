@@ -37,10 +37,13 @@
     $category_id = optional_param("category_id", null, PARAM_INT);
     $action = optional_param("action", "view", PARAM_TEXT);
 
-    require_login();
-    if (isguestuser()){
-        die();
-    }
+    require_login();	
+    if (isguestuser() || !is_manager()){
+        // Error Message
+		echo "You don't have access";
+		die();
+    }	
+	
 
     $PAGE->set_title(get_string('title', 'local_notasuai'));
     $PAGE->set_heading(get_string('heading', 'local_notasuai'));
