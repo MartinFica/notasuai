@@ -329,7 +329,7 @@ function  export_to_excel($emarking, $context = null){
             foreach ($questions as $q) {
                 $index = 10 + array_search($q, $questions);
                 if (! isset($data [$index . "" . $q])) {
-                    $data [$index . "" . $q] = '0.000';
+                    $data [$index . "" . $q] = '-';
                 }
             }
             ksort($data);
@@ -342,6 +342,9 @@ function  export_to_excel($emarking, $context = null){
         $excelfilename = clean_filename("ReporteUAI" . "-grades.xls");
         // Save the data to Excel
         emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 5);
+		
+		echo "<br><br>";
+		print_r($tabledata);
 }
 
 function export_excel($emarking, $context = null){
