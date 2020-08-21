@@ -29,4 +29,4 @@ $string['test3'] = 'Test 3';
 $string['test4'] = 'Test 4';
 $string['download'] = 'Download Excel';
 $string['error2'] = 'Choose at least 1 test';
-$string['no_access'] = 'You Don't Have Access to This Section';
+$string['no_access'] = 'You Do Not Have Access to This Section';
