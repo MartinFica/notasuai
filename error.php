@@ -38,42 +38,12 @@
     $action = optional_param("action", "view", PARAM_TEXT);
 
     require_login();	
-    if (isguestuser() || !is_manager()){
-        // Error Message
 		$PAGE->set_title(get_string('no_access', 'local_notasuai'));
 		$PAGE->set_heading(get_string('no_access', 'local_notasuai'));
-		redirect(new moodle_url("/local/notasuai/error.php"));
-    }
 	
-
-    $PAGE->set_title(get_string('title', 'local_notasuai'));
-    $PAGE->set_heading(get_string('heading', 'local_notasuai'));
-
-    $categoryform = new category();
-
-    if ($category_id > 0){
-		$error = 0;
-        $courseform = new course(null, $category_id);
-        if ($courses = $courseform->get_data()){
-            $arcourses = (array)$courses;
-            $num = 0;
-            $arr = array();
-            foreach ($arcourses as $class){
-                if ($class != 0 && $num > 1){
-                    $arr[$num] = $class;
-                }
-                $num += 1;
-            }
-            $coursesstring = json_encode($arr);
-            redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$coursesstring)));
-        }
-    }
 
 echo $OUTPUT->header();
 
-    $categoryform->display();	
-	if ($category_id > 0){
-		$courseform->display();
-	}
+	print_r(get_string('no_access', 'local_notasuai'));
 
 echo $OUTPUT->footer();
