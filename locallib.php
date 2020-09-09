@@ -44,6 +44,8 @@
  * @param unknown $context
  */
 
+require_once("$CFG->libdir/excellib.class.php");
+
 function is_manager() {
 	global $DB, $CFG, $USER;
 	
@@ -272,6 +274,10 @@ function  export_to_excel($emarking, $context = null){
 				if($row->description){
 					// compares the current row with the last one, if they match, it just assings the grade for the current criteria
 					if(array_search($row->course,$data) && array_search($row->exam,$data) && array_search($row->idnumber,$data) && array_search($row->lastname,$data) && array_search($row->firstname,$data) ){
+						
+						echo "<br><br>";
+						print_r($row->bonus);
+						
 						$part1 = 0;
 						while($part1 < $part){
 							$index = 10 + $part1;
@@ -329,7 +335,7 @@ function  export_to_excel($emarking, $context = null){
             foreach ($questions as $q) {
                 $index = 10 + array_search($q, $questions);
                 if (! isset($data [$index . "" . $q])) {
-                    $data [$index . "" . $q] = '-';
+                    $data [$index . "" . $q] = ' ';
                 }
             }
             ksort($data);
@@ -339,12 +345,9 @@ function  export_to_excel($emarking, $context = null){
         $tabledata = $newtabledata;
         
 		// The file name of the report
-        $excelfilename = clean_filename("ReporteUAI" . "-grades.xls");
+        $excelfilename = clean_filename("ReporteUAI" . "-grades.xlsx");
         // Save the data to Excel
         emarking_save_data_to_excel($headers, $tabledata, $excelfilename, 5);
-		
-		echo "<br><br>";
-		print_r($tabledata);
 }
 
 function export_excel($emarking, $context = null){
@@ -405,16 +408,9 @@ function export_excel($emarking, $context = null){
 		$testquery = $testquery . ' WHERE e.id IN (' . implode(",",$emarking) . ') ';
 		$testquery = $testquery . " ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
 
-		print_r($testquery);
-
         // Get data and generate a list of questions.
         $rows = $DB->get_recordset_sql($testquery);
 		
-		echo "<br>";
-		echo "<br>";
-		echo "<br>";
-		print_r($rows);
-
         // Make a list of all criteria
         $questions = array();
         foreach ($rows as $row) {
@@ -508,17 +504,23 @@ function export_excel($emarking, $context = null){
     }
 
 function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $colnumber = 5) {
-    // Creating a workbook.
+    global $CFG;
+	
+	// Creating a workbook.
     $workbook = new MoodleExcelWorkbook("-");
     // Sending HTTP headers.
     $workbook->send($excelfilename);
     // Adding the worksheet.
-    $myxls = $workbook->add_worksheet(get_string('emarking', 'mod_emarking'));
+    $myxls =& $workbook->add_worksheet("grade report");
     // Writing the headers in the first row.
     $row = 0;
     $col = 0;
+	$titleformat = $workbook->add_format();
+	$titleformat->set_bold(1);
+	$titleformat->set_size(10);
     foreach (array_values($headers) as $d) {
-        $myxls->write_string($row, $col, $d);
+        $myxls->write($row, $col, $d, $titleformat);
+		//$myxls->write_string($row, $col, $d);
         $col ++;
     }
     // Writing the data.
@@ -527,13 +529,16 @@ function emarking_save_data_to_excel($headers, $tabledata, $excelfilename, $coln
         $col = 0;
         foreach (array_values($data) as $d) {
             if ($row > 0 && $col >= $colnumber) {
-                $myxls->write_number($row, $col, $d);
+                $myxls->write($row, $col, $d);
+				//$myxls->write_number($row, $col, $d);
             } else {
-                $myxls->write_string($row, $col, $d);
+                $myxls->write($row, $col, $d);
+				//$myxls->write_string($row, $col, $d);
             }
             $col ++;
         }
         $row ++;
     }
     $workbook->close();
+	exit;
 }
