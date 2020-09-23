@@ -274,10 +274,7 @@ function  export_to_excel($emarking, $context = null){
 				if($row->description){
 					// compares the current row with the last one, if they match, it just assings the grade for the current criteria
 					if(array_search($row->course,$data) && array_search($row->exam,$data) && array_search($row->idnumber,$data) && array_search($row->lastname,$data) && array_search($row->firstname,$data) ){
-						
-						echo "<br><br>";
-						print_r($row->bonus);
-						
+
 						$part1 = 0;
 						while($part1 < $part){
 							$index = 10 + $part1;
