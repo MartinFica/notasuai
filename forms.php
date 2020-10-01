@@ -24,8 +24,7 @@
     require_once ($CFG->libdir."/formslib.php");
     require_once("$CFG->libdir/excellib.class.php");
     require_once($CFG->dirroot . '/local/notasuai/locallib.php');
-
-
+	
 class category extends moodleform {
 
     function definition(){
@@ -41,7 +40,7 @@ class category extends moodleform {
           $category_query = "SELECT id, name FROM {course_categories}";
 		  $category_sql = $DB->get_records_sql($category_query, array());
         }
-        //elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
+        else{
           //Query to get the categorys of the secretary
 			$category_query = "SELECT cc.*
                 FROM {course_categories} cc
@@ -52,7 +51,7 @@ class category extends moodleform {
 			$queryparams = array($USER->id, "managerreport");
 			// Get Records
 			$category_sql = $DB->get_records_sql($category_query, $queryparams);
-		//}
+		}
 		
 		$class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
 			
@@ -311,11 +310,6 @@ class tests extends moodleform {
 		$submited_query = "SELECT status
                 FROM {emarking_submission}
                 WHERE emarking = ?";
-				
-		echo "<br>";
-		print_r($classesarray);
-		echo "<br>";
-		echo "<br>";
 				
         $n_courses = 1;
 		$checkboxcount = 0;
