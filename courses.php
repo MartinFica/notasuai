@@ -23,73 +23,74 @@
 
     require(__DIR__.'/../../config.php');
     require_once ($CFG->dirroot."/local/notasuai/forms.php");
+	require_once($CFG->dirroot . '/local/notasuai/locallib.php');
 
     global $DB, $PAGE, $OUTPUT, $USER;
 
-    $url_view= '/local/notasuai/view.php';
+	$context = context_system::instance();
 
-    $context = context_system::instance();
-    $url = new moodle_url($url_view);
-    $PAGE->set_url($url);
-    $PAGE->set_context($context);
-    $PAGE->set_pagelayout("standard");
-
-    // Possible actions -> view, add. Standard is view mode
-    $view = optional_param("view", "category", PARAM_TEXT);
-    $courses = optional_param("courses", null, PARAM_TEXT);
-
-    require_login();
+	require_login();
     if (isguestuser()){
         die();
     }
 
+    $url_view= '/local/notasuai/view.php';
+	$url = new moodle_url($url_view);
+
+    // Possible actions -> view, add. Standard is view mode
+    $view = optional_param("view", "category", PARAM_TEXT);
+    $courses = optional_param("courses", null, PARAM_TEXT);
+	$exam_check = optional_param('exam_check', null, PARAM_TEXT);
+	$exam_blah = optional_param('exams', null, PARAM_TEXT);
+	
+	if(!is_null($exam_blah)){
+		$exam_aux = json_decode($exam_blah);
+		//$aux =(array) $exam_aux;
+		if ($exam_check == 'export'){
+			//$martin = Array ( [0] => 2 [1] => 4 [2] => 5 );
+			export_to_excel($exam_aux, $context);
+		}		
+	}
+
+	// Array ( [0] => 2 [1] => 4 [2] => 5 )
+	
+	$PAGE->set_context($context);
+    $PAGE->set_url($url);
+    $PAGE->set_context($context);
+    $PAGE->set_pagelayout("standard");
+	
     $PAGE->set_title(get_string('title', 'local_notasuai'));
     $PAGE->set_heading(get_string('heading', 'local_notasuai'));
-
-    $arcourses = json_decode($courses);
+	
+	$arcourses = json_decode($courses);
     $classes = (array) $arcourses;
     $testsform = new tests(null, $classes);
 
-	$error=0;
 	if ($testsform->is_cancelled()) {
 		redirect(new moodle_url("/local/notasuai/index.php"));
 	}
 	else if($formdata = $testsform->get_data()) {
 		
         //form data analysis
-        $exams = array();
+		$exams = array();
         foreach ($formdata->emarking_checkbox as $valor) { 
 
             if($valor != 0 || $valor != ''){
-                $exams[] = $valor;
+				$exams[] = $valor;
             }
         }
-        export_to_excel($exams, $context);
+		
+		$exam_string = json_encode($exams);		
+		redirect(new moodle_url("/local/notasuai/courses.php", array('exam_check' => 'export', 'exams' => $exam_string, 'courses' => $courses)));
 	}
 
     echo $OUTPUT->header();
 
 	$testsform->display();
-
+		
     echo $OUTPUT->footer();
 	
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+	?>	
 	
 	
