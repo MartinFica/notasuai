@@ -307,10 +307,10 @@ class tests extends moodleform {
         /*BODY*/
         $mform->addElement('html', '<tbody>');
 
-		$submited_query = "SELECT status
+		$submited_query = "SELECT id, status
                 FROM {emarking_submission}
-                WHERE emarking = ?";
-				
+				WHERE emarking = ?";
+
         $n_courses = 1;
 		$checkboxcount = 0;
 	    foreach ($classesarray as $class){
@@ -336,12 +336,12 @@ class tests extends moodleform {
 					
 					$submited = 0;
 					$submited_sql = $DB->get_records_sql($submited_query, array($slice[$n]));
+
 					foreach($submited_sql as $status1){
-						foreach($status1 as $status2){
-							if ($status2 >= 20){
-								$submited++;
-							}
+						if ($status1->status >= 20){
+							$submited++;
 						}
+						
 					}
 					
 					$mform->addElement('html', '<td>');
@@ -395,3 +395,5 @@ class tests extends moodleform {
     }
 
 }
+
+?>
