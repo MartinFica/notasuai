@@ -295,7 +295,7 @@ class tests extends moodleform {
 		$checkbox_controller = 1;
 		while ($checkbox_controller <= $n_tests){
             $mform->addElement('html', '<th>');
-			$this->add_checkbox_controller($checkbox_controller, "Emarking ".$checkbox_controller, array('style' => 'font-weight: bold;'));
+			$this->add_checkbox_controller($checkbox_controller, "Emarking <br>".$checkbox_controller, array('style' => 'font-weight: bold;'));
             $mform->addElement('html', '</th>');
 			$checkbox_controller += 1;
 		}
