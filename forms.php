@@ -96,27 +96,15 @@ class course extends moodleform{
         $mform->setType ("category_id", PARAM_INT);
 		$contextsystem = context_system::instance();
 
-        /*if(is_siteadmin()){
-          // get courses
-          $class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
-		  $class_sql = $DB->get_records_sql($class_query, array($category));
-        }*/
 		
-        //elseif (has_capability('local/notasuai:generatereport', $contextsystem)) {
+
           //Query to get the categorys of the secretary
-			
-			/*$class_query = "SELECT c.*
-                FROM {course} c
-                INNER JOIN {role_assignments} ra ON (ra.userid = ?)
-                INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
-                INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = c.id  )";*/
 				
 			$class_query = "SELECT c.*
                 FROM {course} c
 				WHERE c.category = ? ";
 			
 			$queryparams = array($USER->id, "managerreport");
-			//$class_sql = $DB->get_records_sql($class_query, $queryparams);
 			$class_sql = $DB->get_records_sql($class_query, array($category));
 		//}
 
@@ -141,9 +129,6 @@ class course extends moodleform{
         $counter = 1;
 
 		foreach ($class_sql as $class) {
-
-				//if($class->category == $category){
-				
 					$name = $class->fullname;
 					$course[$class->id] = $name;
 					$id = $class->id;
@@ -162,9 +147,6 @@ class course extends moodleform{
 						$mform->addElement('html', '</tr>');
 						$counter++;
 					}
-				
-				//}
-			
         }
 
 

@@ -38,21 +38,17 @@
 	$url = new moodle_url($url_view);
 
     // Possible actions -> view, add. Standard is view mode
-    $view = optional_param("view", "category", PARAM_TEXT);
     $courses = optional_param("courses", null, PARAM_TEXT);
 	$exam_check = optional_param('exam_check', null, PARAM_TEXT);
 	$exam_blah = optional_param('exams', null, PARAM_TEXT);
 	
 	if(!is_null($exam_blah)){
 		$exam_aux = json_decode($exam_blah);
-		//$aux =(array) $exam_aux;
+		
 		if ($exam_check == 'export'){
-			//$martin = Array ( [0] => 2 [1] => 4 [2] => 5 );
 			export_to_excel($exam_aux, $context);
 		}		
 	}
-
-	// Array ( [0] => 2 [1] => 4 [2] => 5 )
 	
 	$PAGE->set_context($context);
     $PAGE->set_url($url);
@@ -89,6 +85,8 @@
 	$testsform->display();
 		
     echo $OUTPUT->footer();
+	
+
 	
 	
 	?>	
