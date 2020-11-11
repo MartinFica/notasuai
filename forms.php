@@ -230,26 +230,12 @@ class tests extends moodleform {
         $mform->addElement('html', '<th>'.$th_title);
         $mform->addElement('html', '</th>');
 
-        //if(is_siteadmin()){
 			$class_query = "SELECT id, fullname, shortname 
                 FROM {course}
                 WHERE id = ?";
 		    $test_query = "SELECT id, name, course
                 FROM {emarking}
                 WHERE course = ?";
-        //}
-		
-		/*$class_query = "SELECT c.id, c.fullname, c.shortname
-            FROM {course} c
-            INNER JOIN {role_assignments} ra ON (ra.userid = ?)
-            INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
-            INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = ?  )";
-        
-		$test_query = "SELECT e.id, e.name, e.course
-            FROM {emarking} e
-            INNER JOIN {role_assignments} ra ON (ra.userid = ?)
-            INNER JOIN {role} r ON (r.id = ra.roleid AND r.shortname = ?)
-            INNER JOIN {context} co ON (co.id = ra.contextid  AND  co.instanceid = ? )";*/
 		
 		$num = 0;
         $classesarray = array();
@@ -275,11 +261,8 @@ class tests extends moodleform {
 					$classesarray[$num] = $aux;
 					$num++;
 				}
-				
-
             }
         }
-
 
 		$n_tests = 0;
 		foreach ($classesarray as $class){
@@ -371,7 +354,11 @@ class tests extends moodleform {
         $mform->addElement('html', '</table>');
 
         // Output button
-        $this->add_action_buttons(true,get_string('download', 'local_notasuai'));
+		$mform->addElement('submit','class_submit',get_string('download', 'local_notasuai'));
+        //$this->add_action_buttons(true,get_string('download', 'local_notasuai'));
+		
+		// Output button
+        //$mform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
     }
 	
 	function validation($data,$files) {
