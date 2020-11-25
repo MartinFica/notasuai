@@ -179,6 +179,7 @@ function  export_to_excel($emarking, $context = null){
 				LEFT JOIN {emarking_comment} c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
 				LEFT JOIN {gradingform_rubric_levels} l ON (c.levelid = l.id)
 				LEFT JOIN {gradingform_rubric_criteria} cr ON (cr.id = l.criterionid)
+				where (d.status=20)
 				ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
 		
 			// Get data and generate a list of questions.
@@ -319,7 +320,7 @@ function  export_to_excel($emarking, $context = null){
             foreach ($questions as $q) {
                 $index = 10 + array_search($q, $questions);
                 if (! isset($data [$index . "" . $q])) {
-                    $data [$index . "" . $q] = '-';
+                    $data [$index . "" . $q] = '';
                 }
             }
             ksort($data);

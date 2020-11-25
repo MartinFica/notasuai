@@ -53,7 +53,10 @@ class category extends moodleform {
 			$category_sql = $DB->get_records_sql($category_query, $queryparams);
 		}
 		
-		$class_query = "SELECT id, fullname FROM {course} WHERE category = ?";
+		$class_query = "SELECT c.id, c.fullname
+						FROM {course} c
+						INNER JOIN {emarking} e ON (e.course)
+						WHERE category = ?";
 			
 		$emarking_query ="SELECT * FROM {emarking} WHERE course = ?";
 
@@ -102,6 +105,7 @@ class course extends moodleform{
 				
 			$class_query = "SELECT c.*
                 FROM {course} c
+				INNER JOIN {emarking} e ON (e.course = c.id)
 				WHERE c.category = ? ";
 			
 			$queryparams = array($USER->id, "managerreport");
@@ -338,9 +342,6 @@ class tests extends moodleform {
         // Output button
 		$mform->addElement('submit','class_submit',get_string('download', 'local_notasuai'));
         //$this->add_action_buttons(true,get_string('download', 'local_notasuai'));
-		
-		// Output button
-        //$mform->addElement('submit','class_submit',get_string('button2', 'local_notasuai'));
     }
 	
 	function validation($data,$files) {
