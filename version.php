@@ -29,5 +29,5 @@
 //defined('MOODLE_INTERNAL') || die();
 $plugin->pluginname = "local_notasuai";
 $plugin->component = 'local_notasuai';
-$plugin->version   = 2020100701;
+$plugin->version   = 2020112501;
 $plugin->requires = 2015111600;
