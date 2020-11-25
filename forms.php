@@ -53,30 +53,29 @@ class category extends moodleform {
 			$category_sql = $DB->get_records_sql($category_query, $queryparams);
 		}
 		
-		$class_query = "SELECT c.id, c.fullname
+		$class_query = "SELECT c.id as courseid, c.fullname, e.id as emarkingid, ed.id as edid, ed.status AS status
 						FROM {course} c
-						INNER JOIN {emarking} e ON (e.course)
+						INNER JOIN {emarking} e ON (e.course = c.id)
+						INNER JOIN {emarking_draft} ed ON (ed.emarkingid = e.id) 
 						WHERE category = ?";
-			
-		$emarking_query ="SELECT * FROM {emarking} WHERE course = ?";
 
-			foreach ($category_sql as $categories){
-				$class_sql = $DB->get_records_sql($class_query, array($categories->id));
-				if (count($class_sql)>0){
-					$n = 0;
-					foreach($class_sql as $course){
-						$emarking_sql = $DB->get_records_sql($emarking_query, array($course->id));
-						if (count($emarking_sql)>0){
-							$n += 1;
-						}
-					}
-					if($n > 0){
-						$name = $categories->name;
-						$cat[$categories->id] = $name;
-					}
+		foreach ($category_sql as $categories){
+			$class_sql = $DB->get_records_sql($class_query, array($categories->id));
+				
+			$n = 0;
+			foreach($class_sql as $course){
+				if($course->status == 20){
+					$n+=1;						
 				}
 			}
-
+			if($n > 0){
+				$cat[$categories->id] = $categories->name;
+			}
+		}
+		
+		if(sizeof($cat) == 0){
+			$cat[0] = get_string('no_emarking', 'local_notasuai');
+		}
         // Category Input
         $mform->addElement("select", "category_id",get_string('categ', 'local_notasuai'), $cat);
 
@@ -103,10 +102,11 @@ class course extends moodleform{
 
           //Query to get the categorys of the secretary
 				
-			$class_query = "SELECT c.*
-                FROM {course} c
-				INNER JOIN {emarking} e ON (e.course = c.id)
-				WHERE c.category = ? ";
+		$class_query = "SELECT ed.id as edid, e.id as emarkingid, ed.status, c.id as courseid, c.fullname
+						FROM {emarking_draft} ed
+						INNER JOIN {emarking} e ON (e.id = ed.emarkingid)
+						INNER JOIN {course} c ON (e.course = c.id) 
+						WHERE c.category = ?";
 			
 			$queryparams = array($USER->id, "managerreport");
 			$class_sql = $DB->get_records_sql($class_query, array($category));
@@ -131,26 +131,25 @@ class course extends moodleform{
 
 		$emarking_query ="SELECT * FROM {emarking} WHERE course = ?";
         $counter = 1;
+		$lastclass = 0;
 
-		foreach ($class_sql as $class) {
-					$name = $class->fullname;
-					$course[$class->id] = $name;
-					$id = $class->id;
-			
-					$emarking_sql = $DB->get_records_sql($emarking_query, array($id));
-						
-					if (count($emarking_sql)>0){
-						
-						$mform->addElement('html', '<tr>');
-						$mform->addElement('html', '<td>'.$counter.'</td>');
-						$mform->addElement('html', '<td>');
-	
-						$mform->addElement('advcheckbox', $id, $name, null, array('group' => 1), $id);
+		foreach ($class_sql as $class) {			
+			if($class->status == 20 && $class->courseid != $lastclass){				
+				$name = $class->fullname;
+				$course[$class->courseid] = $name;
+				$id = $class->courseid;
+				
+				$mform->addElement('html', '<tr>');
+				$mform->addElement('html', '<td>'.$counter.'</td>');
+				$mform->addElement('html', '<td>');
+				$mform->addElement('advcheckbox', $id, $name, null, array('group' => 1), $id);
 
-						$mform->addElement('html', '</td>');
-						$mform->addElement('html', '</tr>');
-						$counter++;
-					}
+				$mform->addElement('html', '</td>');
+				$mform->addElement('html', '</tr>');
+				$counter++;
+					
+				$lastclass = $class->courseid;
+			}
         }
 
 

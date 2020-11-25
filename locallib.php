@@ -179,7 +179,7 @@ function  export_to_excel($emarking, $context = null){
 				LEFT JOIN {emarking_comment} c ON (c.page = p.id AND d.id = c.draft AND c.levelid > 0)
 				LEFT JOIN {gradingform_rubric_levels} l ON (c.levelid = l.id)
 				LEFT JOIN {gradingform_rubric_criteria} cr ON (cr.id = l.criterionid)
-				where (d.status=20)
+				WHERE (d.status=20)
 				ORDER BY cc.fullname ASC, e.name ASC, u.lastname ASC, u.firstname ASC, cr.sortorder";
 		
 			// Get data and generate a list of questions.
@@ -241,7 +241,8 @@ function  export_to_excel($emarking, $context = null){
 				IFNULL(l.score, 0) AS score,
 				IFNULL(c.bonus, 0) AS bonus,
 				IFNULL(l.score,0) + IFNULL(c.bonus,0) AS totalscore,
-				d.grade
+				d.grade,
+				d.status status
 				FROM {emarking} e
 				INNER JOIN {emarking_submission} s ON (e.id = :emarkingid AND e.id = s.emarking)
 				INNER JOIN {emarking_draft} d ON (d.submissionid = s.id AND d.qualitycontrol=0)
@@ -261,9 +262,11 @@ function  export_to_excel($emarking, $context = null){
 			foreach ($rows2 as $row) {
 								
 				if($row->description){
+					
+					if($row->status >= 20){
 					// compares the current row with the last one, if they match, it just assings the grade for the current criteria
-					if(array_search($row->course,$data) && array_search($row->exam,$data) && array_search($row->idnumber,$data) && array_search($row->lastname,$data) && array_search($row->firstname,$data) ){
-
+					if(array_search($row->course,$data) && array_search($row->exam,$data) && array_search($row->idnumber,$data) && array_search($row->lastname,$data) && array_search($row->firstname,$data)){
+						
 						$part1 = 0;
 						while($part1 < $part){
 							$index = 10 + $part1;
@@ -303,6 +306,7 @@ function  export_to_excel($emarking, $context = null){
 					}
 					
 					$tabledata [$current_line] = $data;
+				}
 				}
 
 			}

@@ -30,3 +30,5 @@ $string['test4'] = 'Test 4';
 $string['download'] = 'Download Excel';
 $string['error2'] = 'Choose at least 1 test';
 $string['no_access'] = 'You Do Not Have Access to This Section';
+$string['no_emarking'] = 'There are no categories with Emarkings';
+$string['all/none'] = 'All/None';
