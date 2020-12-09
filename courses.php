@@ -47,7 +47,8 @@
 		
 		if ($exam_check == 'export'){
 			export_to_excel($exam_aux, $context);
-		}		
+		}
+		redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$courses)));
 	}
 	
 	$PAGE->set_context($context);
@@ -89,6 +90,19 @@
 
 	
 	
-	?>	
-	
-	
+	?>
+
+<script>
+var observer = new MutationObserver(function(mutations) {
+  mutations.forEach(function(mutation) {
+    if (mutation.type == "attributes") {
+      console.log("attributes changed")
+	  document.querySelector("#id_class_submit").disabled = false
+    }
+  });
+});
+
+observer.observe(document.querySelector("#id_class_submit"), {
+  attributes: true //configure it to listen to attribute changes
+});
+</script>

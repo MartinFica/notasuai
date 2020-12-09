@@ -339,8 +339,9 @@ class tests extends moodleform {
         $mform->addElement('html', '</table>');
 
         // Output button
-		$mform->addElement('submit','class_submit',get_string('download', 'local_notasuai'));
-        //$this->add_action_buttons(true,get_string('download', 'local_notasuai'));
+		//$mform->addElement('submit','class_submit',get_string('download', 'local_notasuai'));
+        $this->add_action_buttons(true,get_string('download', 'local_notasuai'));
+		//button.disabled = false;
     }
 	
 	function validation($data,$files) {
