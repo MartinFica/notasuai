@@ -201,6 +201,8 @@ class tests extends moodleform {
         $courses = $this->_customdata;
 		$contextsystem = context_system::instance();
 
+		$mform->addElement('button', 'select-all', get_string('all/none', 'local_notasuai'));
+
         $coursesstring = json_encode($courses);
         $mform->addElement ("hidden", "courses", $coursesstring);
         $mform->setType ("courses", PARAM_TEXT);
@@ -210,9 +212,10 @@ class tests extends moodleform {
         $mform->addElement('html', '<table class="table table-striped table-condensed table-hover">');
         $mform->addElement('html', '<thead>');
         $mform->addElement('html', '<tr>');
-        $mform->addElement('html', '<th>#');
+		//$mform->addElement('html', '<th>#');
         $mform->addElement('html', '</th>');
-        $mform->addElement('html', '<th>'.$th_title);
+		$mform->addElement('html', '<th>');        
+		$mform->addElement('html', '<th>'.$th_title);
         $mform->addElement('html', '</th>');
 
 			$class_query = "SELECT id, fullname, shortname 
@@ -259,14 +262,20 @@ class tests extends moodleform {
 		}
 
         /*NUM TEST HEAD TABLE*/
-
+		
 		$checkbox_controller = 1;
 		while ($checkbox_controller <= $n_tests){
             $mform->addElement('html', '<th>');
-			$this->add_checkbox_controller($checkbox_controller, "Emarking <br>".$checkbox_controller, array('style' => 'font-weight: bold;'));
+			$this->add_checkbox_controller($checkbox_controller, "Emarking <br>".$checkbox_controller, array('style' => 'font-weight: bold;')); //
             $mform->addElement('html', '</th>');
 			$checkbox_controller += 1;
 		}
+		
+		$mform->addElement('html', '<th>');
+		
+	
+		
+        
 
         $mform->addElement('html', '</tr>');
         $mform->addElement('html', '</thead>');
@@ -296,8 +305,6 @@ class tests extends moodleform {
                 $m=1;
                 $o=1;
 				
-				
-				
                 $mform->addElement('html', '<td>'.$name.'</td>');
 
                 for ($n = 0; $n < count($slice); $n += 2){
@@ -311,7 +318,7 @@ class tests extends moodleform {
 						}
 						
 					}
-					
+
 					$mform->addElement('html', '<td>');
 					$name_checkbox ="emarking_checkbox[".$checkboxcount."]"; 
 					if ($submited>0){
@@ -339,9 +346,10 @@ class tests extends moodleform {
         $mform->addElement('html', '</table>');
 
         // Output button
-		//$mform->addElement('submit','class_submit',get_string('download', 'local_notasuai'));
+
+		//$mform->addElement('button', 'select-all', 'Seleccionar todo');
         $this->add_action_buttons(true,get_string('download', 'local_notasuai'));
-		//button.disabled = false;
+
     }
 	
 	function validation($data,$files) {

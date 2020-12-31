@@ -41,6 +41,7 @@
     $courses = optional_param("courses", null, PARAM_TEXT);
 	$exam_check = optional_param('exam_check', null, PARAM_TEXT);
 	$exam_blah = optional_param('exams', null, PARAM_TEXT);
+	$all_none = optional_param('all_none', 0, PARAM_INT);
 	
 	if(!is_null($exam_blah)){
 		$exam_aux = json_decode($exam_blah);
@@ -48,7 +49,7 @@
 		if ($exam_check == 'export'){
 			export_to_excel($exam_aux, $context);
 		}
-		redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$courses)));
+		//redirect(new moodle_url("/local/notasuai/courses.php", array('courses'=>$courses)));
 	}
 	
 	$PAGE->set_context($context);
@@ -61,6 +62,7 @@
 	
 	$arcourses = json_decode($courses);
     $classes = (array) $arcourses;
+	
     $testsform = new tests(null, $classes);
 
 	if ($testsform->is_cancelled()) {
@@ -82,27 +84,40 @@
 	}
 
     echo $OUTPUT->header();
-
+	
 	$testsform->display();
-		
+	
     echo $OUTPUT->footer();
-	
 
-	
-	
 	?>
 
-<script>
-var observer = new MutationObserver(function(mutations) {
-  mutations.forEach(function(mutation) {
-    if (mutation.type == "attributes") {
-      console.log("attributes changed")
-	  document.querySelector("#id_class_submit").disabled = false
-    }
-  });
-});
+	<script>
+	var observer = new MutationObserver(function(mutations) {
+		mutations.forEach(function(mutation) {
+			if (mutation.type == "attributes") {
+				console.log("attributes changed")
+				document.querySelector("#id_class_submit").disabled = false
+			}
+		});
+	});
 
-observer.observe(document.querySelector("#id_class_submit"), {
-  attributes: true //configure it to listen to attribute changes
-});
-</script>
+	observer.observe(document.querySelector("#id_class_submit"), {
+		attributes: true //configure it to listen to attribute changes
+	});
+	
+	//select all js button
+	document.querySelector("#id_select-all").addEventListener("click", function() {
+		//console.log("selecting")
+		var checkboxes = document.querySelectorAll(".form-check-input");
+		checkboxes.forEach(checkbox => {
+			if(checkbox.disabled === false)
+			{
+				checkbox.checked = true;
+			}
+			else if(checkbox.disabled === true)
+			{
+				checkbox.checked = false;
+			}
+		});
+	});
+	</script>
